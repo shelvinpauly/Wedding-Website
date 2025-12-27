@@ -215,3 +215,32 @@ footer {
     right: 12px;
   }
 }
+
+/* =========================
+   Scroll Cue
+   ========================= */
+.scroll-cue {
+  margin-top: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.9;
+  user-select: none;
+}
+
+.scroll-text {
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.scroll-arrow {
+  display: inline-block;
+  font-size: 1.2rem;
+  animation: scrollBounce 1.4s infinite;
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.9; }
+  50% { transform: translateY(8px); opacity: 1; }
+}
