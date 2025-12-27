@@ -1,0 +1,60 @@
+/* =========================
+   Global Styles
+   ========================= */
+
+body {
+  margin: 0;
+  font-family: "Georgia", serif;
+  color: #2c2c2c;
+  background-color: #faf9f7;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+header {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+nav a {
+  font-weight: 600;
+}
+
+main {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+h2 {
+  margin-top: 60px;
+}
+
+.hero img {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+  margin-top: 30px;
+}
+
+footer {
+  text-align: center;
+  padding: 40px;
+  font-size: 0.9rem;
+  color: #777;
+}
