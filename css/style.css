@@ -58,3 +58,160 @@ footer {
   font-size: 0.9rem;
   color: #777;
 }
+
+/* =========================
+   Hero (Full-screen)
+   ========================= */
+
+.hero {
+  position: relative;
+  min-height: 100vh;
+  padding: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #fff;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.02);
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.45),
+    rgba(0,0,0,0.35),
+    rgba(0,0,0,0.55)
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  padding: 80px 20px;
+}
+
+.hero-kicker {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  opacity: 0.95;
+  margin-bottom: 12px;
+}
+
+.hero-title {
+  margin: 0;
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  line-height: 1.05;
+  font-weight: 700;
+  /* Fancy-ish fallback fonts; we can add Google Fonts later */
+  font-family: "Georgia", "Times New Roman", serif;
+  text-shadow: 0 10px 30px rgba(0,0,0,0.45);
+}
+
+.hero-details {
+  margin-top: 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 1.05rem;
+  opacity: 0.95;
+}
+
+.hero-welcome {
+  margin: 26px auto 0;
+  max-width: 650px;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  text-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+
+.hero-verse {
+  margin: 18px auto 0;
+  max-width: 650px;
+  font-style: italic;
+  font-size: 1.05rem;
+  opacity: 0.95;
+  text-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+
+.verse-ref {
+  font-style: normal;
+  opacity: 0.9;
+}
+
+.hero-cta {
+  margin-top: 26px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.95);
+  color: #222;
+  font-weight: 700;
+}
+
+.btn:hover {
+  filter: brightness(0.95);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid rgba(255,255,255,0.9);
+  color: #fff;
+}
+
+.btn-outline:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+/* Countdown (top-right) */
+.hero-top-right {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 3;
+  text-align: right;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(8px);
+}
+
+.countdown-label {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.countdown {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  font-size: 1rem;
+}
+
+/* Mobile tweaks */
+@media (max-width: 768px) {
+  .hero-content {
+    padding: 90px 16px 70px;
+  }
+
+  .hero-top-right {
+    top: 12px;
+    right: 12px;
+  }
+}
