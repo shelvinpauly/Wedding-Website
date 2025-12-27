@@ -2,7 +2,7 @@
   // Wedding date/time in America/Phoenix is fine for you, but guests may be elsewhere.
   // We'll set a time now as 4:00 PM local time as a placeholder.
   // Update time once you decide.
-  const weddingDate = new Date("2026-04-17T16:00:00-07:00"); // 4:00 PM MST (Phoenix)
+  const weddingDate = new Date("2026-04-17T16:00:00-04:00"); // 4:00 PM MST (Phoenix)
 
   const el = document.getElementById("countdown");
   if (!el) return;
