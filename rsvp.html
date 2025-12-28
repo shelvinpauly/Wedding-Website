@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RSVP | Shelvin & Nancy</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-
-<header>
-  <h1>RSVP</h1>
-</header>
 
 <nav>
   <a href="index.html">Home</a>
@@ -20,16 +17,422 @@
   <a href="faqs.html">FAQs</a>
 </nav>
 
-
 <main>
-  <p>Please respond by TBD.</p>
+  <h1>RSVP</h1>
 
-  <!-- GOOGLE FORMS RSVP WILL GO HERE
-       We will embed it later using an iframe
-  -->
+  <p class="deadline">
+    <!-- RSVP DEADLINE: edit this date when you change invite rounds -->
+    <strong>RSVP by March 15, 2026</strong>
+  </p>
+
+  <div class="card">
+    <form id="rsvpForm">
+      <label>
+        Name (exactly as on invite) *
+        <input id="nameInput" name="name" type="text" required />
+      </label>
+
+      <label>
+        Will you be attending? *
+        <select id="attendingSelect" name="attending" required>
+          <option value="">Select…</option>
+          <option value="yes">Yes, I will be there</option>
+          <option value="no">No, I can’t make it</option>
+        </select>
+      </label>
+
+      <!-- Shown only if attending = YES -->
+      <div id="attendingFields" class="hidden">
+        <label>
+          Email *
+          <input id="emailInput" name="email" type="email" />
+        </label>
+
+        <label>
+          Adults (including you)
+          <select id="adultsSelect" name="adults"></select>
+        </label>
+
+        <label>
+          Children (ages 5–15)
+          <select id="kids515Select" name="kids515"></select>
+        </label>
+
+        <label>
+          Children (under 5)
+          <select id="kidsUnder5Select" name="kidsUnder5"></select>
+        </label>
+
+        <label>
+          Message (optional)
+          <textarea name="message" rows="4" placeholder="Leave us a note..."></textarea>
+        </label>
+      </div>
+
+      <!-- Shown only if attending = NO -->
+      <div id="declineMessage" class="hidden">
+        <p class="soft-note">
+          We’ll miss you! If anything changes, please email us at
+          <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.
+        </p>
+      </div>
+
+      <div id="submitWrap" class="hidden">
+        <button id="submitBtn" class="btn" type="submit">Submit RSVP</button>
+      </div>
+
+      <p id="status" class="status"></p>
+      <p id="subStatus" class="substatus"></p>
+
+    </form>
+  </div>
 </main>
 
-<footer>© Shelvin & Nancy</footer>
+<script>
+  const RSVP_API_URL = "https://script.google.com/macros/s/AKfycbwfrN0GkviwTo_0oHd4VxvUO8a5JGidDhN5p6icOK4Iidye5mfzeNSE_PLxx6YUwkVX/exec";
+  const COOLDOWN_SECONDS = 30;
+
+  const form = document.getElementById("rsvpForm");
+  const nameInput = document.getElementById("nameInput");
+  const attendingSelect = document.getElementById("attendingSelect");
+  const attendingFields = document.getElementById("attendingFields");
+  const declineMessage = document.getElementById("declineMessage");
+
+  const emailInput = document.getElementById("emailInput");
+  const adultsSelect = document.getElementById("adultsSelect");
+  const kids515Select = document.getElementById("kids515Select");
+  const kidsUnder5Select = document.getElementById("kidsUnder5Select");
+
+  const statusEl = document.getElementById("status");
+  const subStatusEl = document.getElementById("subStatus");
+
+  const submitWrap = document.getElementById("submitWrap");
+  const submitBtn = document.getElementById("submitBtn");
+
+  let redirectTimer = null;
+  let redirectInProgress = false;
+
+  function startRedirectCountdown(seconds, destination) {
+    if (redirectTimer) clearInterval(redirectTimer);
+
+    // OPTIONAL: Delay redirect until tab is visible
+    // Uncomment if you want redirects to wait until user returns to the tab
+    /*
+    if (document.visibilityState === "hidden") {
+      document.addEventListener("visibilitychange", function onVisible() {
+        if (document.visibilityState === "visible") {
+          document.removeEventListener("visibilitychange", onVisible);
+          startRedirectCountdown(seconds, destination);
+        }
+      });
+      return;
+    }
+    */
+
+    redirectInProgress = true; // <-- ADD THIS
+
+    let remaining = seconds;
+
+    const label =
+      destination === "schedule.html"
+        ? "the schedule"
+        : "the home page";
+
+    subStatusEl.textContent = `You’ll be redirected to ${label} in ${remaining}s…`;
+
+    redirectTimer = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        clearInterval(redirectTimer);
+        window.location.href = destination;
+      } else {
+        subStatusEl.textContent = `You’ll be redirected to ${label} in ${remaining}s…`;
+      }
+    }, 1000);
+  }
+
+
+  function setHidden(el, hidden) {
+    el.classList.toggle("hidden", hidden);
+  }
+
+  function setSubmitVisible(visible) {
+    setHidden(submitWrap, !visible);
+  }
+
+  function setSubmitEnabled(enabled) {
+    submitBtn.disabled = !enabled;
+    submitBtn.style.opacity = enabled ? "1" : "0.6";
+    submitBtn.style.cursor = enabled ? "pointer" : "not-allowed";
+  }
+
+  function fillSelect(selectEl, min, max, defaultValue) {
+    selectEl.innerHTML = "";
+    for (let i = min; i <= max; i++) {
+      const opt = document.createElement("option");
+      opt.value = String(i);
+      opt.textContent = String(i);
+      if (i === defaultValue) opt.selected = true;
+      selectEl.appendChild(opt);
+    }
+  }
+
+  // ---- Guest lookup state ----
+  let guestLookup = {
+    status: "idle", // idle | checking | valid | invalid
+    caps: null,
+    nameKey: ""
+  };
+
+  let lookupTimer = null;
+  let lookupRequestId = 0;
+
+  function normalizeName(s) {
+    return (s || "").trim().toLowerCase().replace(/\s+/g, " ");
+  }
+
+  async function lookupCapsByName(name) {
+    const url = new URL(RSVP_API_URL);
+    url.searchParams.set("action", "lookup");
+    url.searchParams.set("name", name);
+
+    const res = await fetch(url.toString());
+    let out;
+    try { out = await res.json(); } catch (e) { out = null; }
+
+    if (!out || out.ok !== true) {
+      throw new Error((out && out.error) ? out.error : "Lookup failed. Please try again.");
+    }
+    return out; // { side, maxAdults, maxKids515, maxKidsUnder5 }
+  }
+
+  function resetUiToSafeState() {
+    // Never show extra fields or submit until we know guest is valid + choice made
+    setHidden(attendingFields, true);
+    setHidden(declineMessage, true);
+    setSubmitVisible(false);
+    emailInput.required = false;
+    subStatusEl.textContent = "";
+  }
+
+  function applyUiRules() {
+    const name = nameInput.value.trim();
+    const attending = attendingSelect.value;
+
+    // Base safe state
+    setHidden(attendingFields, true);
+    setHidden(declineMessage, true);
+    setSubmitVisible(false);
+
+    // If no name, nothing else should show
+    if (!name) {
+      statusEl.textContent = "";
+      return;
+    }
+
+    // If checking, show only “checking…”
+    if (guestLookup.status === "checking") {
+      statusEl.textContent = "Checking your invitation details…";
+      return;
+    }
+
+    // If invalid guest, show only error, nothing else
+    if (guestLookup.status === "invalid") {
+      // statusEl already set during lookup
+      return;
+    }
+
+    // If valid guest but no attending choice yet
+    if (guestLookup.status === "valid" && !attending) {
+      statusEl.textContent = "";
+      return;
+    }
+
+    // Valid guest + attending choice logic
+    if (guestLookup.status === "valid" && attending === "no") {
+      // Do not show extra fields; allow submit
+      emailInput.required = false;
+      setSubmitVisible(true);
+      statusEl.textContent = ""; // no pre-message; only after submit
+      return;
+    }
+
+    if (guestLookup.status === "valid" && attending === "yes") {
+      // Show extra fields + allow submit
+      setHidden(attendingFields, false);
+      emailInput.required = true;
+      setSubmitVisible(true);
+      statusEl.textContent = "";
+      return;
+    }
+  }
+
+  function scheduleLookup() {
+    const name = nameInput.value.trim();
+    const key = normalizeName(name);
+
+    // Reset UI on every new keystroke before lookup finishes
+    guestLookup = { status: name ? "checking" : "idle", caps: null, nameKey: key };
+    resetUiToSafeState();
+    applyUiRules();
+
+    // Debounce
+    if (lookupTimer) clearTimeout(lookupTimer);
+
+    if (!name) return;
+
+    const currentId = ++lookupRequestId;
+    lookupTimer = setTimeout(async () => {
+      try {
+        const caps = await lookupCapsByName(name);
+
+        // Ignore out-of-order responses
+        if (currentId !== lookupRequestId) return;
+
+        // Set caps and mark valid
+        guestLookup = { status: "valid", caps, nameKey: key };
+
+        // Fill dropdowns only now (prevents flicker)
+        if (caps.maxAdults < 1) {
+          guestLookup.status = "invalid";
+          statusEl.textContent = "This invitation isn’t configured correctly. Please email us at shelvinancy@gmail.com.";
+          resetUiToSafeState();
+          return;
+        }
+
+        fillSelect(adultsSelect, 1, caps.maxAdults, 1);
+        fillSelect(kids515Select, 0, caps.maxKids515, 0);
+        fillSelect(kidsUnder5Select, 0, caps.maxKidsUnder5, 0);
+
+        statusEl.textContent = "";
+        applyUiRules();
+
+      } catch (err) {
+        guestLookup = { status: "invalid", caps: null, nameKey: key };
+
+        // Friendly guidance message (shown when name isn't found)
+        const msg = (err && err.message) ? err.message : "";
+        const isNotFound = msg.toLowerCase().includes("couldn’t find") || msg.toLowerCase().includes("could not find");
+
+        statusEl.innerHTML = isNotFound
+          ? `We couldn’t find that name on the guest list.<br>
+            Please double-check the name you typed and make sure it matches the name on your invitation.<br>
+            If it looks correct and you still can’t submit, please reach out to us.
+            Sorry for any confusion!`
+          : `We’re having trouble checking the guest list right now.<br>
+            Please refresh and try again. If it continues, email us at
+            <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.`;
+
+        resetUiToSafeState();
+      }
+    }, 350); // debounce delay
+  }
+
+  function startCooldown(seconds) {
+    const until = Date.now() + seconds * 1000;
+    localStorage.setItem("rsvpCooldownUntil", String(until));
+
+    // Make sure cooldown UI applies immediately (unless redirect takes over)
+    tickCooldown();
+  }
+
+
+  function tickCooldown() {
+    // If redirect is active, do not overwrite the redirect message
+    if (redirectInProgress) return;
+
+    const untilRaw = localStorage.getItem("rsvpCooldownUntil");
+    const until = untilRaw ? Number(untilRaw) : 0;
+    const now = Date.now();
+
+    if (!until || now >= until) {
+      localStorage.removeItem("rsvpCooldownUntil");
+      setSubmitEnabled(true);
+      subStatusEl.textContent = "";
+      return;
+    }
+
+    const remaining = Math.ceil((until - now) / 1000);
+    setSubmitEnabled(false);
+    subStatusEl.textContent = `Please wait ${remaining}s before submitting again.`;
+    setTimeout(tickCooldown, 500);
+  }
+
+
+  // Init
+  resetUiToSafeState();
+  tickCooldown();
+
+  // Events
+  nameInput.addEventListener("input", scheduleLookup);
+
+  attendingSelect.addEventListener("change", () => {
+    // Do not show anything new unless guest is valid
+    applyUiRules();
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Final gate: only submit if allowed
+    if (guestLookup.status !== "valid") return;
+    if (!attendingSelect.value) return;
+
+    // Respect cooldown
+    const untilRaw = localStorage.getItem("rsvpCooldownUntil");
+    if (untilRaw && Date.now() < Number(untilRaw)) return;
+
+    statusEl.textContent = "Submitting…";
+
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    try {
+      const res = await fetch(RSVP_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(data),
+      });
+
+      let out;
+      try { out = await res.json(); } catch (e) { out = null; }
+
+      if (!out || out.ok !== true) {
+        statusEl.textContent = (out && out.error) ? out.error : "Something went wrong. Please try again.";
+        return;
+      }
+
+      // Success messages
+      if ((data.attending || "").toLowerCase() === "no") {
+        statusEl.innerHTML =
+          `Thanks for letting us know — we’ll miss you. ❤️<br>` +
+          `If anything changes, please email us at ` +
+          `<a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.`;
+
+        // Keep form mostly as-is; but hide extra fields anyway
+        setHidden(attendingFields, true);
+        setHidden(declineMessage, true);
+
+      } else {
+        statusEl.innerHTML =
+          `Thank you! Your RSVP has been received.<br>` +
+          `Please check your email for confirmation. We can’t wait to celebrate with you!❤️`;
+      }
+
+      startCooldown(COOLDOWN_SECONDS);
+
+      if ((data.attending || "").toLowerCase() === "yes") {
+        startRedirectCountdown(COOLDOWN_SECONDS, "schedule.html");
+      } else {
+        startRedirectCountdown(COOLDOWN_SECONDS, "index.html");
+      }
+
+
+    } catch (err) {
+      statusEl.textContent = "Network error. Please try again in a moment.";
+      console.error(err);
+    }
+  });
+</script>
 
 </body>
 </html>
