@@ -1,0 +1,181 @@
+/* =========================
+   Components: Buttons
+   ========================= */
+
+.btn {
+  background-color: var(--sage);
+  color: #fff;
+  border: 1px solid transparent;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(143, 174, 155, 0.25);
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+  background-color: var(--sage-dark);
+  box-shadow: 0 10px 22px rgba(111, 143, 124, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--mauve);
+  outline-offset: 2px;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--mauve-dark);
+  border: 1px solid var(--mauve);
+  box-shadow: none;
+}
+
+.btn-outline:hover {
+  background-color: var(--mauve);
+  color: #fff;
+}
+
+/* =========================
+   Components: Cards
+   ========================= */
+
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow-soft);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--sage);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
+}
+
+.card h3 {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+}
+
+.card-strong {
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.card p {
+  margin: 0 0 8px;
+  color: #3a3a3a;
+  line-height: 1.45;
+}
+
+.card-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+/* =========================
+   Components: RSVP Block
+   ========================= */
+
+.rsvp-info {
+  margin-top: 48px;
+  padding: 22px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.rsvp-info:hover {
+  border-color: var(--sage);
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
+}
+
+.rsvp-steps {
+  margin: 14px 0 0;
+  padding-left: 20px;
+  line-height: 1.65;
+}
+
+.rsvp-note {
+  margin-top: 14px;
+  color: #555;
+}
+
+.rsvp-actions {
+  margin-top: 16px;
+}
+
+.status {
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+.substatus {
+  margin-top: 8px;
+  opacity: 0.9;
+}
+
+.status.success {
+  color: var(--sage-dark);
+}
+
+.status.error {
+  color: var(--mauve-dark);
+}
+
+.deadline {
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+/* =========================
+   Components: Forms
+   ========================= */
+
+form label {
+  display: block;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+form input,
+form select,
+form textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  font: inherit;
+  background: var(--bg-card);
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+  border-color: var(--sage-dark);
+  box-shadow: 0 0 0 3px rgba(143, 174, 155, 0.25);
+  outline: none;
+}
+
+form textarea {
+  resize: vertical;
+}
+
+.soft-note {
+  margin-top: 10px;
+  color: #444;
+  line-height: 1.6;
+}

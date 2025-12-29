@@ -1,0 +1,90 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap");
+
+/* =========================
+   Base Styles
+   ========================= */
+
+:root {
+  /* Primary wedding colors */
+  --sage: #8fae9b;        /* sage green */
+  --sage-dark: #6f8f7c;
+
+  --mauve: #b07a8d;       /* mauve */
+  --mauve-dark: #8f5a6b;
+
+  /* Neutrals */
+  --bg-main: #faf9f8;
+  --bg-card: #ffffff;
+  --border-soft: rgba(0, 0, 0, 0.08);
+
+  --text-main: #2b2b2b;
+  --text-muted: #6b6b6b;
+
+  /* Typography */
+  --font-sans: "Source Sans 3", "Segoe UI", "Trebuchet MS", sans-serif;
+  --font-serif: "Cormorant Garamond", "Georgia", "Times New Roman", serif;
+
+  /* Shadows */
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-lift: 0 14px 28px rgba(0, 0, 0, 0.08);
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 18px;
+}
+
+h1, h2, h3 {
+  color: var(--mauve-dark);
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+h1 {
+  font-size: clamp(2.2rem, 5vw, 3rem);
+}
+
+h2 {
+  margin-top: 60px;
+}
+
+a {
+  text-decoration: none;
+  color: var(--sage-dark);
+  transition: color 0.2s ease, box-shadow 0.2s ease;
+}
+
+a:hover {
+  color: var(--mauve);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--mauve);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+header {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+footer {
+  text-align: center;
+  padding: 40px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.hidden {
+  display: none !important;
+}
