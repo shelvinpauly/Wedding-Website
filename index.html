@@ -1,25 +1,27 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shelvin & Nancy</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="preload" as="image" href="images/hero-2500.webp" type="image/webp">
+  <link rel="preload" as="image" href="images/hero-2500.jpg" type="image/jpeg">
 </head>
 <body>
 
 <header class="hero">
-  <div class="hero-bg" style="background-image: url('images/hero.jpg');"></div>
+  <div class="hero-bg" style="background-image: url('images/hero-2500.jpg'); background-image: -webkit-image-set(url('images/hero-2500.webp') type('image/webp'), url('images/hero-2500.jpg') type('image/jpeg')); background-image: image-set(url('images/hero-2500.webp') type('image/webp'), url('images/hero-2500.jpg') type('image/jpeg'));"></div>
 
   <div class="hero-overlay"></div>
 
   <div class="hero-top-right">
-    <div id="countdown" class="countdown">Loading…</div>
+    <div id="countdown" class="countdown">Loading...</div>
   </div>
 
 
   <div class="hero-content">
-    <!-- <div class="hero-kicker">We’re getting married</div> -->
+    <!-- <div class="hero-kicker">We're getting married</div> -->
 
     <h1 class="hero-title">Shelvin &amp; Nancy</h1>
 
@@ -30,13 +32,13 @@
     </div>
 
     <p class="hero-welcome">
-      Welcome to our wedding website! We’re so grateful for your love and support and can’t wait to celebrate with you.
+      Welcome to our wedding website! We're so grateful for your love and support and can't wait to celebrate with you.
     </p> -->
 
     <blockquote class="hero-verse">
-      “And now these three remain: faith, hope and love.
-      But the greatest of these is love.”
-      <span class="verse-ref">— 1 Corinthians 13:13</span>
+      "And now these three remain: faith, hope and love.
+      But the greatest of these is love."
+      <span class="verse-ref">- 1 Corinthians 13:13</span>
     </blockquote>
 
 
@@ -47,7 +49,7 @@
   </div>
   <div class="scroll-cue" aria-hidden="true">
     <span class="scroll-text">Scroll</span>
-    <span class="scroll-arrow">↓</span>
+    <span class="scroll-arrow">&darr;</span>
   </div>
 
 </header>
@@ -55,7 +57,7 @@
 <script src="js/main.js"></script>
 
 <nav>
-  <a href="index.html">Home</a>
+  <a href="index.html" aria-current="page">Home</a>
   <a href="schedule.html">Schedule</a>
   <a href="wedding-party.html">Wedding Party</a>
   <a href="registry.html">Registry</a>
@@ -67,8 +69,8 @@
   <h2>Welcome</h2>
 
   <p>
-    Welcome to our wedding website! We’re so grateful for your love and support
-    and can’t wait to celebrate this special day with you.
+    Welcome to our wedding website! We're so grateful for your love and support
+    and can't wait to celebrate this special day with you.
   </p>
 
   <!-- Quick Details Cards -->
@@ -77,20 +79,20 @@
       <h3>Ceremony</h3>
       <p class="card-strong">First Baptist Church of Lincoln Gardens</p>
       <p>771 Somerset Street, Franklin Township, NJ 08873</p>
-      <p class="card-meta"><span>🕙</span> 10:00 AM</p>
+      <p class="card-meta"><span>Time:</span> 10:00 AM</p>
     </div>
 
     <div class="card">
       <h3>Reception</h3>
       <p class="card-strong">The Marigold</p>
       <p>315 Churchill Ave, Somerset, NJ 08873</p>
-      <p class="card-meta"><span>🕛</span> 12:00 PM</p>
+      <p class="card-meta"><span>Time:</span> 12:00 PM</p>
     </div>
 
     <div class="card">
       <h3>Dress Code</h3>
       <p class="card-strong">Semi-formal / Ethnic wear</p>
-      <p>We’d love to see you dressed up for the celebration.</p>
+      <p>We'd love to see you dressed up for the celebration.</p>
     </div>
   </section>
 
@@ -111,13 +113,13 @@
     </ol>
 
     <p class="rsvp-note">
-      You’ll receive a confirmation email after submitting, and we’ll share additional
+      You'll receive a confirmation email after submitting, and we'll share additional
       instructions as the date gets closer.
     </p>
 
     <p class="deadline">
       <!-- RSVP DEADLINE: edit this date when you change invite rounds -->
-      <strong>RSVP by March 15, 2026</strong>
+      <strong>RSVP by January 15, 2026</strong>
     </p>
 
     <div class="rsvp-actions">
@@ -128,8 +130,12 @@
 </main>
 
 <footer>
-  © Shelvin & Nancy
+  &copy; Shelvin & Nancy
 </footer>
 
 </body>
 </html>
+
+
+
+
