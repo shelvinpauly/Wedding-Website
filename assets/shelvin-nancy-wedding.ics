@@ -1,4 +1,4 @@
-BEGIN:VCALENDAR
+﻿BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//Shelvin & Nancy//Wedding//EN
 CALSCALE:GREGORIAN
@@ -11,7 +11,7 @@ SUMMARY:Shelvin & Nancy Wedding Ceremony
 DTSTART:20260417T140000Z
 DTEND:20260417T153000Z
 LOCATION:First Baptist Church of Lincoln Gardens, 771 Somerset Street, Franklin Township, NJ 08873
-DESCRIPTION:Ceremony for Shelvin & Nancy. Please arrive by 9:30 AM.\\n\\nWebsite: https://shelvinandnancy.com
+DESCRIPTION:Ceremony for Shelvin & Nancy. Please be seated by 9:30 AM. Ceremony is 10:00 AM - 11:30 AM.\\n\\nWebsite: https://shelvinandnancy.com
 END:VEVENT
 
 BEGIN:VEVENT
@@ -19,9 +19,9 @@ UID:shelvin-nancy-reception-20260417@yourdomain.com
 DTSTAMP:20251227T000000Z
 SUMMARY:Shelvin & Nancy Wedding Reception
 DTSTART:20260417T160000Z
-DTEND:20260417T203000Z
+DTEND:20260417T210000Z
 LOCATION:The Marigold, 315 Churchill Ave, Somerset, NJ 08873
-DESCRIPTION:Reception for Shelvin & Nancy.\\n\\nWebsite: https://shelvinandnancy.com
+DESCRIPTION:Cocktail hour: 12:00 PM - 1:00 PM. Please be seated by 12:45 PM. Reception: 1:00 PM - 5:00 PM.\\n\\nWebsite: https://shelvinandnancy.com
 END:VEVENT
 
 END:VCALENDAR

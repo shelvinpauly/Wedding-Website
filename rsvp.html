@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,24 +8,32 @@
 </head>
 <body>
 
+<header>
+  <h1>RSVP</h1>
+</header>
+
 <nav>
   <a href="index.html">Home</a>
   <a href="schedule.html">Schedule</a>
   <a href="wedding-party.html">Wedding Party</a>
   <a href="registry.html">Registry</a>
-  <a href="rsvp.html">RSVP</a>
+  <a href="rsvp.html" aria-current="page">RSVP</a>
   <a href="faqs.html">FAQs</a>
 </nav>
 
 <main>
-  <h1>RSVP</h1>
 
   <p class="deadline">
     <!-- RSVP DEADLINE: edit this date when you change invite rounds -->
-    <strong>RSVP by March 15, 2026</strong>
+    <strong>RSVP by January 15, 2026</strong>
+  </p>
+
+  <p class="rsvp-note">
+    Need to update your RSVP later? Submit the form again with the same name before the deadline.
   </p>
 
   <div class="card">
+    <p id="closedNotice" class="status error hidden"></p>
     <form id="rsvpForm">
       <label>
         Name (exactly as on invite) *
@@ -35,9 +43,9 @@
       <label>
         Will you be attending? *
         <select id="attendingSelect" name="attending" required>
-          <option value="">Select…</option>
+          <option value="">Select...</option>
           <option value="yes">Yes, I will be there</option>
-          <option value="no">No, I can’t make it</option>
+          <option value="no">No, I can't make it</option>
         </select>
       </label>
 
@@ -54,7 +62,7 @@
         </label>
 
         <label>
-          Children (ages 5–15)
+          Children (ages 5-15)
           <select id="kids515Select" name="kids515"></select>
         </label>
 
@@ -72,7 +80,7 @@
       <!-- Shown only if attending = NO -->
       <div id="declineMessage" class="hidden">
         <p class="soft-note">
-          We’ll miss you! If anything changes, please email us at
+          We'll miss you! If anything changes, please email us at
           <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.
         </p>
       </div>
@@ -105,12 +113,15 @@
 
   const statusEl = document.getElementById("status");
   const subStatusEl = document.getElementById("subStatus");
+  const closedNotice = document.getElementById("closedNotice");
 
   const submitWrap = document.getElementById("submitWrap");
   const submitBtn = document.getElementById("submitBtn");
 
   let redirectTimer = null;
   let redirectInProgress = false;
+  let submitting = false;
+  let rsvpClosed = false;
 
   function startRedirectCountdown(seconds, destination) {
     if (redirectTimer) clearInterval(redirectTimer);
@@ -138,7 +149,7 @@
         ? "the schedule"
         : "the home page";
 
-    subStatusEl.textContent = `You’ll be redirected to ${label} in ${remaining}s…`;
+    subStatusEl.textContent = `You'll be redirected to ${label} in ${remaining}s...`;
 
     redirectTimer = setInterval(() => {
       remaining--;
@@ -146,7 +157,7 @@
         clearInterval(redirectTimer);
         window.location.href = destination;
       } else {
-        subStatusEl.textContent = `You’ll be redirected to ${label} in ${remaining}s…`;
+        subStatusEl.textContent = `You'll be redirected to ${label} in ${remaining}s...`;
       }
     }, 1000);
   }
@@ -154,6 +165,38 @@
 
   function setHidden(el, hidden) {
     el.classList.toggle("hidden", hidden);
+  }
+
+  function setRsvpClosed(message) {
+    rsvpClosed = true;
+    closedNotice.textContent = message;
+    setHidden(closedNotice, false);
+    setHidden(form, true);
+  }
+
+  function buildClosedMessage(deadlineText) {
+    const trimmed = (deadlineText || "").replace(/^RSVP by\s*/i, "").trim();
+    if (trimmed) {
+      return `RSVPs are now closed. The deadline was ${trimmed}. If you need to make a change, please email us at shelvinancy@gmail.com.`;
+    }
+    return "RSVPs are now closed. If you need to make a change, please email us at shelvinancy@gmail.com.";
+  }
+
+  async function loadRsvpStatus() {
+    const url = new URL(RSVP_API_URL);
+    url.searchParams.set("action", "status");
+
+    try {
+      const res = await fetch(url.toString());
+      let out;
+      try { out = await res.json(); } catch (e) { out = null; }
+
+      if (out && out.ok && out.closed) {
+        setRsvpClosed(buildClosedMessage(out.deadlineText));
+      }
+    } catch (err) {
+      // Ignore status errors and allow normal flow.
+    }
   }
 
   function setSubmitVisible(visible) {
@@ -219,6 +262,8 @@
     const name = nameInput.value.trim();
     const attending = attendingSelect.value;
 
+    if (rsvpClosed) return;
+
     // Base safe state
     setHidden(attendingFields, true);
     setHidden(declineMessage, true);
@@ -230,9 +275,9 @@
       return;
     }
 
-    // If checking, show only “checking…”
+    // If checking, show only "checking..."
     if (guestLookup.status === "checking") {
-      statusEl.textContent = "Checking your invitation details…";
+      statusEl.textContent = "Checking your invitation details...";
       return;
     }
 
@@ -271,6 +316,8 @@
     const name = nameInput.value.trim();
     const key = normalizeName(name);
 
+    if (rsvpClosed) return;
+
     // Reset UI on every new keystroke before lookup finishes
     guestLookup = { status: name ? "checking" : "idle", caps: null, nameKey: key };
     resetUiToSafeState();
@@ -295,7 +342,7 @@
         // Fill dropdowns only now (prevents flicker)
         if (caps.maxAdults < 1) {
           guestLookup.status = "invalid";
-          statusEl.textContent = "This invitation isn’t configured correctly. Please email us at shelvinancy@gmail.com.";
+          statusEl.textContent = "This invitation isn't configured correctly. Please email us at shelvinancy@gmail.com.";
           resetUiToSafeState();
           return;
         }
@@ -312,14 +359,14 @@
 
         // Friendly guidance message (shown when name isn't found)
         const msg = (err && err.message) ? err.message : "";
-        const isNotFound = msg.toLowerCase().includes("couldn’t find") || msg.toLowerCase().includes("could not find");
+        const isNotFound = msg.toLowerCase().includes("couldn't find") || msg.toLowerCase().includes("could not find");
 
         statusEl.innerHTML = isNotFound
-          ? `We couldn’t find that name on the guest list.<br>
+          ? `We couldn't find that name on the guest list.<br>
             Please double-check the name you typed and make sure it matches the name on your invitation.<br>
-            If it looks correct and you still can’t submit, please reach out to us.
+            If it looks correct and you still can't submit, please reach out to us.
             Sorry for any confusion!`
-          : `We’re having trouble checking the guest list right now.<br>
+          : `We're having trouble checking the guest list right now.<br>
             Please refresh and try again. If it continues, email us at
             <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.`;
 
@@ -360,6 +407,7 @@
 
 
   // Init
+  loadRsvpStatus();
   resetUiToSafeState();
   tickCooldown();
 
@@ -374,6 +422,8 @@
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    if (rsvpClosed || submitting) return;
+
     // Final gate: only submit if allowed
     if (guestLookup.status !== "valid") return;
     if (!attendingSelect.value) return;
@@ -382,7 +432,10 @@
     const untilRaw = localStorage.getItem("rsvpCooldownUntil");
     if (untilRaw && Date.now() < Number(untilRaw)) return;
 
-    statusEl.textContent = "Submitting…";
+    submitting = true;
+    setSubmitEnabled(false);
+
+    statusEl.textContent = "Submitting...";
 
     const data = Object.fromEntries(new FormData(form).entries());
 
@@ -397,14 +450,22 @@
       try { out = await res.json(); } catch (e) { out = null; }
 
       if (!out || out.ok !== true) {
+        submitting = false;
+
+        if (out && out.code === "RSVP_CLOSED") {
+          setRsvpClosed(out.error || buildClosedMessage(out.deadlineText));
+          return;
+        }
+
         statusEl.textContent = (out && out.error) ? out.error : "Something went wrong. Please try again.";
+        setSubmitEnabled(true);
         return;
       }
 
       // Success messages
       if ((data.attending || "").toLowerCase() === "no") {
         statusEl.innerHTML =
-          `Thanks for letting us know — we’ll miss you. ❤️<br>` +
+          `Thanks for letting us know - we'll miss you.<br>` +
           `If anything changes, please email us at ` +
           `<a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.`;
 
@@ -415,9 +476,10 @@
       } else {
         statusEl.innerHTML =
           `Thank you! Your RSVP has been received.<br>` +
-          `Please check your email for confirmation. We can’t wait to celebrate with you!❤️`;
+          `Please check your email for confirmation. We can't wait to celebrate with you!`;
       }
 
+      submitting = false;
       startCooldown(COOLDOWN_SECONDS);
 
       if ((data.attending || "").toLowerCase() === "yes") {
@@ -428,7 +490,9 @@
 
 
     } catch (err) {
+      submitting = false;
       statusEl.textContent = "Network error. Please try again in a moment.";
+      setSubmitEnabled(true);
       console.error(err);
     }
   });
@@ -436,3 +500,6 @@
 
 </body>
 </html>
+
+
+

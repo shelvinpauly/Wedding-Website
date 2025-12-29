@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,9 +8,13 @@
 </head>
 <body>
 
+<header>
+  <h1>Wedding Schedule</h1>
+</header>
+
 <nav>
   <a href="index.html">Home</a>
-  <a href="schedule.html">Schedule</a>
+  <a href="schedule.html" aria-current="page">Schedule</a>
   <a href="wedding-party.html">Wedding Party</a>
   <a href="registry.html">Registry</a>
   <a href="rsvp.html">RSVP</a>
@@ -18,37 +22,34 @@
 </nav>
 
 <main>
-  <header style="margin-bottom: 18px;">
-    <h1>Wedding Schedule</h1>
-    <p style="max-width: 70ch; line-height: 1.7; opacity: 0.95;">
-      We’re so excited to celebrate with you! Below is the schedule for <strong>April 17, 2026</strong>.
-      Timings are approximate — we’ll share any updates and helpful instructions as the date gets closer.
-    </p>
-  </header>
+  <p style="max-width: 70ch; line-height: 1.7; opacity: 0.95; margin-top: 0;">
+    We're so excited to celebrate with you! Below is the schedule for <strong>April 17, 2026</strong>.
+    The times below are final. Seating chart and program details will be posted here and emailed as we get closer.
+  </p>
 
   <div class="calendar-actions">
     <a class="btn" href="assets/shelvin-nancy-wedding.ics" download>Add to Apple/Outlook Calendar</a>
 
     <a class="btn btn-outline"
-      href="https://www.google.com/calendar/render?action=TEMPLATE&text=Shelvin%20%26%20Nancy%20Wedding%20Ceremony&dates=20260417T140000Z/20260417T153000Z&location=First%20Baptist%20Church%20of%20Lincoln%20Gardens%2C%20771%20Somerset%20Street%2C%20Franklin%20Township%2C%20NJ%2008873&details=Please%20arrive%20by%209%3A30%20AM.%20More%20info%3A%20https%3A%2F%2Fshelvinandnancy.com"
+      href="https://www.google.com/calendar/render?action=TEMPLATE&text=Shelvin%20%26%20Nancy%20Wedding%20Ceremony&dates=20260417T140000Z/20260417T153000Z&location=First%20Baptist%20Church%20of%20Lincoln%20Gardens%2C%20771%20Somerset%20Street%2C%20Franklin%20Township%2C%20NJ%2008873&details=Please+be+seated+by+9%3A30+AM.+Ceremony+is+10%3A00+AM+-+11%3A30+AM.+More+info%3A+https%3A%2F%2Fshelvinandnancy.com"
       target="_blank" rel="noopener">
       Add Ceremony to Google Calendar
     </a>
 
     <a class="btn btn-outline"
-      href="https://www.google.com/calendar/render?action=TEMPLATE&text=Shelvin%20%26%20Nancy%20Wedding%20Reception&dates=20260417T160000Z/20260417T203000Z&location=The%20Marigold%2C%20315%20Churchill%20Ave%2C%20Somerset%2C%20NJ%2008873&details=Reception%20for%20Shelvin%20%26%20Nancy.%20More%20info%3A%20https%3A%2F%2Fshelvinandnancy.com"
+      href="https://www.google.com/calendar/render?action=TEMPLATE&text=Shelvin%20%26%20Nancy%20Wedding%20Reception&dates=20260417T160000Z/20260417T210000Z&location=The%20Marigold%2C%20315%20Churchill%20Ave%2C%20Somerset%2C%20NJ%2008873&details=Cocktail+hour%3A+12%3A00+PM+-+1%3A00+PM.+Please+be+seated+by+12%3A45+PM.+Reception%3A+1%3A00+PM+-+5%3A00+PM.+More+info%3A+https%3A%2F%2Fshelvinandnancy.com"
       target="_blank" rel="noopener">
       Add Reception to Google Calendar
     </a>
   </div>
-
 
   <section class="card schedule-block">
     <h2>Ceremony</h2>
 
     <p>
       <strong>Date:</strong> April 17, 2026<br>
-      <strong>Time:</strong> 10:00 AM (please arrive by <strong>9:30 AM</strong>)<br>
+      <strong>Time:</strong> 10:00 AM - 11:30 AM<br>
+      <strong>Please be seated by:</strong> 9:30 AM<br>
       <strong>Venue:</strong> First Baptist Church of Lincoln Gardens<br>
       <strong>Address:</strong> 771 Somerset Street, Franklin Township, NJ 08873
     </p>
@@ -67,12 +68,12 @@
         target="_blank"
         rel="noopener"
       >
-        Open in Google Maps →
+        Open in Google Maps
       </a>
     </p>
 
     <p class="note">
-      We kindly ask guests to be seated a little early so the ceremony can begin on time.
+      Please be seated by 9:30 AM so the ceremony can begin on time.
     </p>
   </section>
 
@@ -81,7 +82,10 @@
 
     <p>
       <strong>Date:</strong> April 17, 2026<br>
-      <strong>Time:</strong> 12:00 PM<br>
+      <strong>Time:</strong> 12:00 PM - 5:00 PM<br>
+      <strong>Cocktail Hour:</strong> 12:00 PM - 1:00 PM<br>
+      <strong>Reception:</strong> 1:00 PM - 5:00 PM<br>
+      <strong>Please be seated by:</strong> 12:45 PM<br>
       <strong>Venue:</strong> The Marigold<br>
       <strong>Address:</strong> 315 Churchill Ave, Somerset, NJ 08873
     </p>
@@ -100,18 +104,19 @@
         target="_blank"
         rel="noopener"
       >
-        Open in Google Maps →
+        Open in Google Maps
       </a>
     </p>
 
     <p class="note">
-      Join us for lunch, music, and celebration right after the ceremony.
+      Please be seated by 12:45 PM so the reception program can begin on time.
     </p>
   </section>
 
   <div class="directions-card">
     <h3>Directions</h3>
-    <p>Going from the ceremony to the reception?</p>
+    <p>Going from the ceremony to the reception? Typical drive time is 4-7 minutes.</p>
+    <p>We suggest heading out around 11:40 AM so you can park and arrive for the 12:00 PM cocktail hour (seating by 12:45 PM).</p>
 
     <a
       class="btn btn-outline"
@@ -119,10 +124,9 @@
       target="_blank"
       rel="noopener"
     >
-      Open Driving Directions →
+      Open Driving Directions
     </a>
   </div>
-
 
   <section class="card" style="margin-bottom: 22px;">
     <h2 style="margin-top: 0;">Dress Code</h2>
@@ -134,9 +138,9 @@
   <section class="card">
     <h2 style="margin-top: 0;">Helpful Notes</h2>
     <ul style="line-height: 1.8; margin: 0; padding-left: 20px;">
-      <li><strong>Parking:</strong> Parking is available at both venues.</li>
-      <li><strong>Timing:</strong> Times are approximate — thank you for your flexibility.</li>
-      <li><strong>Unplugged ceremony (optional):</strong> We’d love for you to be fully present with us; please keep phones on silent.</li>
+      <li><strong>Parking:</strong> On-site parking lots are available at both venues and should accommodate all guests.</li>
+      <li><strong>Seating chart + program:</strong> The reception seating chart and program details will be posted on this site and emailed as we get closer.</li>
+      <li><strong>Unplugged ceremony:</strong> We'd love for you to be fully present with us; please keep phones on silent.</li>
       <li><strong>Questions:</strong> If you need help, feel free to email us at
         <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.
       </li>
@@ -145,8 +149,13 @@
 </main>
 
 <footer>
-  © Shelvin & Nancy
+  &copy; Shelvin & Nancy
 </footer>
 
 </body>
 </html>
+
+
+
+
+
