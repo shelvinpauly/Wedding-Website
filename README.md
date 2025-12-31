@@ -53,10 +53,14 @@ README.md                  # This file
 
 ## Configuration Quick Reference
 - `rsvp.html`: `RSVP_API_URL`, RSVP deadline text, and client-side copy.
-- `code.gs`: `ACTIVE_INVITE_ROUND`, `RSVP_DEADLINE_TEXT`, `RSVP_DEADLINE_DATE`, and guest list spreadsheet IDs.
+- `code.gs`: `RSVP_WINDOWS`, `ROUND_TABS`, and guest list spreadsheet IDs.
 - `js/main.js`: countdown date/time.
 - `schedule.html` and `assets/shelvin-nancy-wedding.ics`: schedule times and calendar details.
 - `css/base.css`, `css/layout.css`, `css/components.css`, `css/pages/*.css`: modular styling by layer and page.
+
+## RSVP Documentation
+- `docs/rsvp-windowing.md`: per-side RSVP windows, name matching rules, and error codes.
+- `docs/rsvp-issue.md`: historical notes on the guest list column mapping fix.
 
 ## Local Development
 1. Open `index.html` directly in a browser, or use a local server for best results:
