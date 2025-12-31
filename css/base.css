@@ -43,18 +43,47 @@ main {
 }
 
 h1, h2, h3 {
-  color: var(--mauve-dark);
   font-family: var(--font-serif);
   font-weight: 600;
   letter-spacing: 0.01em;
 }
 
 h1 {
+  color: var(--mauve-dark);
   font-size: clamp(2.2rem, 5vw, 3rem);
 }
 
 h2 {
-  margin-top: 60px;
+  color: var(--sage-dark);
+  margin: 40px 0 16px;
+}
+
+h3 {
+  color: var(--sage-dark);
+  margin: 24px 0 12px;
+}
+
+main > h2:first-child {
+  margin-top: 0;
+}
+
+p {
+  margin: 0 0 14px;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+ul,
+ol {
+  margin: 0 0 14px;
+  padding-left: 20px;
+}
+
+ul:last-child,
+ol:last-child {
+  margin-bottom: 0;
 }
 
 a {

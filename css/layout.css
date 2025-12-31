@@ -17,7 +17,7 @@ nav a {
   font-weight: 600;
   padding: 8px 14px;
   border-radius: 999px;
-  color: var(--mauve-dark);
+  color: var(--sage-dark);
   border: 1px solid transparent;
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }

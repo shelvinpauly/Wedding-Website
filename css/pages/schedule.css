@@ -7,7 +7,7 @@
 }
 
 .schedule-block h2 {
-  margin-bottom: 10px;
+  margin: 0 0 10px;
 }
 
 .schedule-block p {
@@ -19,6 +19,13 @@
   flex-wrap: wrap;
   gap: 10px;
   margin: 14px 0 22px;
+}
+
+.schedule-intro {
+  max-width: 70ch;
+  line-height: 1.7;
+  opacity: 0.95;
+  margin: 0 0 18px;
 }
 
 /* ===== Google Map Embed ===== */
@@ -83,4 +90,18 @@
 .directions-card h3 {
   margin: 0 0 6px;
   font-size: 1.05rem;
+}
+
+.schedule-card {
+  margin-bottom: 22px;
+}
+
+.schedule-card p {
+  line-height: 1.8;
+}
+
+.schedule-notes {
+  line-height: 1.8;
+  margin: 0;
+  padding-left: 20px;
 }

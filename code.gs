@@ -34,17 +34,16 @@ function getRoundTabName_() {
 }
 
 /**
- * Column mapping in guest list tab (based on your headers):
- * A: Name
- * B: Guests  (we will treat this as Adults cap)
- * C: Extras  (ignored for now)
- * D: Children (5-15)
- * E: Children (under 5)
+ * Column mapping in guest list tab (standardized):
+ * A: Name (responsible person)
+ * B: Adults (15+)
+ * C: Children (5-15)
+ * D: Children (under 5)
  */
 const COL_NAME = 1;
 const COL_ADULTS = 2;
-const COL_KIDS_515 = 4;
-const COL_KIDS_U5 = 5;
+const COL_KIDS_515 = 3;
+const COL_KIDS_U5 = 4;
 
 /**
  * =========================
@@ -229,8 +228,8 @@ function findGuestRow_(spreadsheetId, tabName, nameKey) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return null;
 
-  // Read columns A-E for all guests (Row 2 onward)
-  const data = sheet.getRange(2, 1, lastRow - 1, 5).getValues();
+  // Read columns A-D for all guests (Row 2 onward)
+  const data = sheet.getRange(2, 1, lastRow - 1, 4).getValues();
 
   for (const row of data) {
     const rawName = String(row[COL_NAME - 1] || "");
@@ -384,23 +383,6 @@ function upsertRsvpRow_(sheet, rsvp) {
  * EMAIL + HELPERS
  * =========================
  */
-function sendConfirmationEmailLegacy_(email, name) {
-  const subject = "RSVP Confirmation — Shelvin & Nancy";
-  const body =
-`Hi ${name},
-
-Thank you for your RSVP! We’ve received your response.
-
-${RSVP_DEADLINE_TEXT}
-
-We’ll share additional instructions as the date gets closer.
-
-With love,
-Shelvin & Nancy
-`;
-  MailApp.sendEmail(email, subject, body);
-}
-
 function sendConfirmationEmail_(email, name) {
   const subject = "RSVP Confirmation - Shelvin & Nancy";
   const body =
@@ -428,6 +410,7 @@ function normalize(s) {
   return (s || "")
     .trim()
     .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, "")
     .replace(/\s+/g, " ");
 }
 
