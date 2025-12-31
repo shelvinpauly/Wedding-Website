@@ -1,0 +1,52 @@
+/* =========================
+   Layout: Navigation
+   ========================= */
+
+nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  padding: 16px 18px;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-soft);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+}
+
+nav a {
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--sage-dark);
+  border: 1px solid transparent;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+nav a:hover {
+  color: var(--sage-dark);
+  background-color: rgba(143, 174, 155, 0.15);
+  border-color: rgba(143, 174, 155, 0.35);
+}
+
+nav a:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 2px;
+}
+
+nav a[aria-current="page"] {
+  color: var(--mauve-dark);
+  background-color: rgba(176, 122, 141, 0.15);
+  border-color: rgba(176, 122, 141, 0.35);
+}
+
+@media (max-width: 600px) {
+  nav {
+    gap: 10px 12px;
+    padding: 12px 14px;
+  }
+
+  nav a {
+    padding: 6px 10px;
+    font-size: 0.95rem;
+  }
+}

@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RSVP | Shelvin & Nancy</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
 </head>
 <body>
 
@@ -126,21 +128,7 @@
   function startRedirectCountdown(seconds, destination) {
     if (redirectTimer) clearInterval(redirectTimer);
 
-    // OPTIONAL: Delay redirect until tab is visible
-    // Uncomment if you want redirects to wait until user returns to the tab
-    /*
-    if (document.visibilityState === "hidden") {
-      document.addEventListener("visibilitychange", function onVisible() {
-        if (document.visibilityState === "visible") {
-          document.removeEventListener("visibilitychange", onVisible);
-          startRedirectCountdown(seconds, destination);
-        }
-      });
-      return;
-    }
-    */
-
-    redirectInProgress = true; // <-- ADD THIS
+    redirectInProgress = true;
 
     let remaining = seconds;
 
@@ -223,16 +211,11 @@
   // ---- Guest lookup state ----
   let guestLookup = {
     status: "idle", // idle | checking | valid | invalid
-    caps: null,
-    nameKey: ""
+    caps: null
   };
 
   let lookupTimer = null;
   let lookupRequestId = 0;
-
-  function normalizeName(s) {
-    return (s || "").trim().toLowerCase().replace(/\s+/g, " ");
-  }
 
   async function lookupCapsByName(name) {
     const url = new URL(RSVP_API_URL);
@@ -314,12 +297,10 @@
 
   function scheduleLookup() {
     const name = nameInput.value.trim();
-    const key = normalizeName(name);
-
     if (rsvpClosed) return;
 
     // Reset UI on every new keystroke before lookup finishes
-    guestLookup = { status: name ? "checking" : "idle", caps: null, nameKey: key };
+    guestLookup = { status: name ? "checking" : "idle", caps: null };
     resetUiToSafeState();
     applyUiRules();
 
@@ -337,7 +318,7 @@
         if (currentId !== lookupRequestId) return;
 
         // Set caps and mark valid
-        guestLookup = { status: "valid", caps, nameKey: key };
+        guestLookup = { status: "valid", caps };
 
         // Fill dropdowns only now (prevents flicker)
         if (caps.maxAdults < 1) {
@@ -355,7 +336,7 @@
         applyUiRules();
 
       } catch (err) {
-        guestLookup = { status: "invalid", caps: null, nameKey: key };
+        guestLookup = { status: "invalid", caps: null };
 
         // Friendly guidance message (shown when name isn't found)
         const msg = (err && err.message) ? err.message : "";

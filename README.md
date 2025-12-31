@@ -14,7 +14,7 @@ This static website is the central hub for wedding information, including the sc
 - RSVP Deadline: January 15, 2026
 
 ## Architecture
-- Frontend: Static HTML pages in the repo root, styled with `css/style.css` and behavior in `js/main.js`.
+- Frontend: Static HTML pages in the repo root, styled with modular CSS in `css/` and behavior in `js/main.js`.
 - RSVP backend: Google Apps Script (`code.gs`) deployed as a web app.
 - Data: Guest lists live in two Google Sheets (bride/groom) with round tabs; RSVP responses are stored in the bound spreadsheet tabs.
 - Email: Apps Script `MailApp` sends confirmation emails for attending guests.
@@ -34,7 +34,12 @@ registry.html              # Registry links
 rsvp.html                  # RSVP form and client-side logic
 faqs.html                  # Frequently asked questions
 css/
-  style.css                # Main stylesheet
+  base.css                 # Root tokens + base element styles
+  layout.css               # Nav and layout scaffolding
+  components.css           # Buttons, cards, forms, RSVP UI
+  pages/
+    home.css               # Hero + homepage sections
+    schedule.css           # Schedule-specific styles
 js/
   main.js                  # Countdown and UI behavior
 images/                    # Photos and image assets
@@ -51,7 +56,7 @@ README.md                  # This file
 - `code.gs`: `ACTIVE_INVITE_ROUND`, `RSVP_DEADLINE_TEXT`, `RSVP_DEADLINE_DATE`, and guest list spreadsheet IDs.
 - `js/main.js`: countdown date/time.
 - `schedule.html` and `assets/shelvin-nancy-wedding.ics`: schedule times and calendar details.
-- `css/style.css`: global styles, components, and layout rules.
+- `css/base.css`, `css/layout.css`, `css/components.css`, `css/pages/*.css`: modular styling by layer and page.
 
 ## Local Development
 1. Open `index.html` directly in a browser, or use a local server for best results:
@@ -59,7 +64,7 @@ README.md                  # This file
    python -m http.server 8000
    ```
 2. Edit HTML files for content updates.
-3. Update `css/style.css` for styling changes.
+3. Update the CSS files under `css/` for styling changes.
 4. Update `js/main.js` for interactive behavior.
 
 ## Deployment
@@ -71,7 +76,6 @@ README.md                  # This file
 - Google Sheets: update the guest list spreadsheets for the active invite round.
 
 ## Backlog / TODO
-- Modularize `css/style.css` into base/layout/components/page files.
 - Hero image optimization (resize/compress/WebP).
 - Visual styling pass (nav, hover/focus, typography).
 - Responsive audit (phone/tablet spacing, accordion touch targets).
