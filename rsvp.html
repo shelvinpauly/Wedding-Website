@@ -26,12 +26,12 @@
 <main>
 
   <p class="deadline">
-    <!-- RSVP DEADLINE: edit this date when you change invite rounds -->
-    <strong>RSVP by January 15, 2026</strong>
+    <strong>Please RSVP by your invitation deadline.</strong>
+    It helps us plan for the celebration.
   </p>
 
   <p class="rsvp-note">
-    Need to update your RSVP later? Submit the form again with the same name before the deadline.
+    Need to update your RSVP later? Submit the form again with the same name within your RSVP window.
   </p>
 
   <div class="card">
@@ -123,7 +123,6 @@
   let redirectTimer = null;
   let redirectInProgress = false;
   let submitting = false;
-  let rsvpClosed = false;
 
   function startRedirectCountdown(seconds, destination) {
     if (redirectTimer) clearInterval(redirectTimer);
@@ -155,36 +154,28 @@
     el.classList.toggle("hidden", hidden);
   }
 
-  function setRsvpClosed(message) {
-    rsvpClosed = true;
+  function setNotice(message) {
     closedNotice.textContent = message;
-    setHidden(closedNotice, false);
-    setHidden(form, true);
+    setHidden(closedNotice, !message);
   }
 
-  function buildClosedMessage(deadlineText) {
-    const trimmed = (deadlineText || "").replace(/^RSVP by\s*/i, "").trim();
-    if (trimmed) {
-      return `RSVPs are now closed. The deadline was ${trimmed}. If you need to make a change, please email us at shelvinancy@gmail.com.`;
-    }
-    return "RSVPs are now closed. If you need to make a change, please email us at shelvinancy@gmail.com.";
+  function buildNotOpenMessage(windowText) {
+    const suffix = windowText ? ` Your RSVP window is ${windowText}.` : "";
+    return `RSVP is not open yet for your invitation.${suffix}`;
   }
 
-  async function loadRsvpStatus() {
-    const url = new URL(RSVP_API_URL);
-    url.searchParams.set("action", "status");
+  function buildClosedMessage(windowText) {
+    const suffix = windowText ? ` Your RSVP window was ${windowText}.` : "";
+    return `RSVP is closed for your invitation.${suffix}`;
+  }
 
-    try {
-      const res = await fetch(url.toString());
-      let out;
-      try { out = await res.json(); } catch (e) { out = null; }
-
-      if (out && out.ok && out.closed) {
-        setRsvpClosed(buildClosedMessage(out.deadlineText));
-      }
-    } catch (err) {
-      // Ignore status errors and allow normal flow.
-    }
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   function setSubmitVisible(visible) {
@@ -210,7 +201,7 @@
 
   // ---- Guest lookup state ----
   let guestLookup = {
-    status: "idle", // idle | checking | valid | invalid
+    status: "idle", // idle | checking | valid | invalid | not_open | closed
     caps: null
   };
 
@@ -226,10 +217,10 @@
     let out;
     try { out = await res.json(); } catch (e) { out = null; }
 
-    if (!out || out.ok !== true) {
-      throw new Error((out && out.error) ? out.error : "Lookup failed. Please try again.");
+    if (!out) {
+      throw new Error("Lookup failed. Please try again.");
     }
-    return out; // { side, maxAdults, maxKids515, maxKidsUnder5 }
+    return out; // { ok, code, error, status, windowText, maxAdults, maxKids515, maxKidsUnder5 }
   }
 
   function resetUiToSafeState() {
@@ -239,13 +230,14 @@
     setSubmitVisible(false);
     emailInput.required = false;
     subStatusEl.textContent = "";
+    setNotice("");
   }
 
   function applyUiRules() {
     const name = nameInput.value.trim();
     const attending = attendingSelect.value;
 
-    if (rsvpClosed) return;
+    setNotice("");
 
     // Base safe state
     setHidden(attendingFields, true);
@@ -267,6 +259,12 @@
     // If invalid guest, show only error, nothing else
     if (guestLookup.status === "invalid") {
       // statusEl already set during lookup
+      return;
+    }
+
+    if (guestLookup.status === "not_open" || guestLookup.status === "closed") {
+      setNotice(guestLookup.message || "");
+      statusEl.textContent = "";
       return;
     }
 
@@ -297,7 +295,6 @@
 
   function scheduleLookup() {
     const name = nameInput.value.trim();
-    if (rsvpClosed) return;
 
     // Reset UI on every new keystroke before lookup finishes
     guestLookup = { status: name ? "checking" : "idle", caps: null };
@@ -312,10 +309,49 @@
     const currentId = ++lookupRequestId;
     lookupTimer = setTimeout(async () => {
       try {
-        const caps = await lookupCapsByName(name);
+        const response = await lookupCapsByName(name);
 
         // Ignore out-of-order responses
         if (currentId !== lookupRequestId) return;
+
+        if (!response.ok) {
+          guestLookup = { status: "invalid", caps: null };
+
+          if (response.code === "NOT_FOUND") {
+            statusEl.innerHTML =
+              `We couldn't find that name on the guest list.<br>
+              Please double-check the name you typed and make sure it matches the name on your invitation.<br>
+              If it looks correct and you still can't submit, please reach out to us.
+              Sorry for any confusion!`;
+          } else if (response.code === "AMBIGUOUS_NAME") {
+            statusEl.textContent = response.error || "Please enter your full name as shown on your invitation.";
+          } else {
+            statusEl.innerHTML =
+              `We're having trouble checking the guest list right now.<br>
+              Please refresh and try again. If it continues, email us at
+              <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.`;
+          }
+
+          resetUiToSafeState();
+          applyUiRules();
+          return;
+        }
+
+        if (response.status === "not_open") {
+          guestLookup = { status: "not_open", caps: null, message: buildNotOpenMessage(response.windowText) };
+          resetUiToSafeState();
+          applyUiRules();
+          return;
+        }
+
+        if (response.status === "closed") {
+          guestLookup = { status: "closed", caps: null, message: buildClosedMessage(response.windowText) };
+          resetUiToSafeState();
+          applyUiRules();
+          return;
+        }
+
+        const caps = response;
 
         // Set caps and mark valid
         guestLookup = { status: "valid", caps };
@@ -338,18 +374,10 @@
       } catch (err) {
         guestLookup = { status: "invalid", caps: null };
 
-        // Friendly guidance message (shown when name isn't found)
-        const msg = (err && err.message) ? err.message : "";
-        const isNotFound = msg.toLowerCase().includes("couldn't find") || msg.toLowerCase().includes("could not find");
-
-        statusEl.innerHTML = isNotFound
-          ? `We couldn't find that name on the guest list.<br>
-            Please double-check the name you typed and make sure it matches the name on your invitation.<br>
-            If it looks correct and you still can't submit, please reach out to us.
-            Sorry for any confusion!`
-          : `We're having trouble checking the guest list right now.<br>
-            Please refresh and try again. If it continues, email us at
-            <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.`;
+        statusEl.innerHTML =
+          `We're having trouble checking the guest list right now.<br>
+          Please refresh and try again. If it continues, email us at
+          <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.`;
 
         resetUiToSafeState();
       }
@@ -388,7 +416,6 @@
 
 
   // Init
-  loadRsvpStatus();
   resetUiToSafeState();
   tickCooldown();
 
@@ -403,7 +430,7 @@
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    if (rsvpClosed || submitting) return;
+    if (submitting) return;
 
     // Final gate: only submit if allowed
     if (guestLookup.status !== "valid") return;
@@ -434,7 +461,16 @@
         submitting = false;
 
         if (out && out.code === "RSVP_CLOSED") {
-          setRsvpClosed(out.error || buildClosedMessage(out.deadlineText));
+          guestLookup = { status: "closed", caps: null, message: out.error || buildClosedMessage(out.windowText || "") };
+          resetUiToSafeState();
+          applyUiRules();
+          return;
+        }
+
+        if (out && out.code === "RSVP_NOT_OPEN") {
+          guestLookup = { status: "not_open", caps: null, message: out.error || buildNotOpenMessage(out.windowText || "") };
+          resetUiToSafeState();
+          applyUiRules();
           return;
         }
 
@@ -443,12 +479,31 @@
         return;
       }
 
+      const summaryLines = (out && Array.isArray(out.summary)) ? out.summary : null;
+      const windowText = (out && out.windowText) ? out.windowText : "";
+
+      const fallbackSummary = [
+        windowText ? `RSVP window: ${windowText}` : null,
+        `Attending: ${(data.attending || "").toLowerCase() === "yes" ? "Yes" : "No"}`,
+        (data.attending || "").toLowerCase() === "yes" ? `Adults: ${data.adults || 0}` : null,
+        (data.attending || "").toLowerCase() === "yes" ? `Children (5-15): ${data.kids515 || 0}` : null,
+        (data.attending || "").toLowerCase() === "yes" ? `Children (under 5): ${data.kidsUnder5 || 0}` : null,
+        data.email ? `Email: ${data.email}` : null,
+        data.message ? `Message: ${data.message}` : null
+      ].filter(Boolean);
+
+      const lines = summaryLines && summaryLines.length ? summaryLines : fallbackSummary;
+      const summaryHtml = lines.length
+        ? `<div class="rsvp-summary"><p>Your RSVP summary:</p><ul>${lines.map(line => `<li>${escapeHtml(line)}</li>`).join("")}</ul></div>`
+        : "";
+
       // Success messages
       if ((data.attending || "").toLowerCase() === "no") {
         statusEl.innerHTML =
           `Thanks for letting us know - we'll miss you.<br>` +
           `If anything changes, please email us at ` +
-          `<a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.`;
+          `<a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.` +
+          summaryHtml;
 
         // Keep form mostly as-is; but hide extra fields anyway
         setHidden(attendingFields, true);
@@ -457,7 +512,8 @@
       } else {
         statusEl.innerHTML =
           `Thank you! Your RSVP has been received.<br>` +
-          `Please check your email for confirmation. We can't wait to celebrate with you!`;
+          `Please check your email for confirmation. We can't wait to celebrate with you!` +
+          summaryHtml;
       }
 
       submitting = false;

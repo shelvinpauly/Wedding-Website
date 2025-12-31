@@ -4,15 +4,46 @@
  * =========================
  */
 
-// Change this when you move to the next invite round.
-const ACTIVE_INVITE_ROUND = 1; // 1, 2, or 3
+// Use Eastern time for all RSVP windows.
+// Make sure the Apps Script timezone is set to America/New_York.
+const RSVP_TIMEZONE = "America/New_York";
 
-// RSVP deadline shown to guests (no mention of "round" in the UI).
-// EDIT THIS whenever you change invite rounds.
-const RSVP_DEADLINE_TEXT = "RSVP by January 15, 2026"; // <-- EDIT PER ROUND
-// Keep RSVP_DEADLINE_TEXT and RSVP_DEADLINE_DATE in sync.
-// Use script timezone. January is month 0.
-const RSVP_DEADLINE_DATE = new Date(2026, 0, 15, 23, 59, 59);
+// RSVP windows by side + round. Month is 0-based (Jan = 0).
+const BRIDE_WINDOW = {
+  startDate: "2020-01-01", // open now
+  endDate: "2026-02-15",
+  label: "Now - February 15, 2026"
+};
+
+const RSVP_WINDOWS = {
+  BRIDE: {
+    1: BRIDE_WINDOW,
+    2: BRIDE_WINDOW,
+    3: BRIDE_WINDOW
+  },
+  GROOM: {
+    1: {
+      startDate: "2020-01-01", // open now
+      endDate: "2026-01-15",
+      label: "Now - January 15, 2026"
+    },
+    2: {
+      startDate: "2026-01-16",
+      endDate: "2026-01-31",
+      label: "January 16 - January 31, 2026"
+    },
+    3: {
+      startDate: "2026-02-01",
+      endDate: "2026-02-15",
+      label: "February 1 - February 15, 2026"
+    }
+  }
+};
+
+const ROUND_TABS = ["Round 1", "Round 2", "Round 3"];
+
+const NOT_FOUND_MESSAGE = "We couldn't find that name on the guest list. Please enter the name exactly as shown on your invitation.";
+const AMBIGUOUS_MESSAGE = "We found multiple guests with that first and last name. Please enter your full name as shown on your invitation.";
 
 // Guest list spreadsheets (one for bride, one for groom)
 const BRIDE_GUEST_LIST_SPREADSHEET_ID = "11S6ZFxRYyPkHa_YEucNhNPPABRM0ygHvZWHkRcYGsrE";
@@ -21,17 +52,6 @@ const GROOM_GUEST_LIST_SPREADSHEET_ID = "1hu42DFI2OazS5kGVJ86_HBwtBRCuaQvPDvXKV2
 // RSVP response tabs in *this* (bound) spreadsheet
 const BRIDE_RSVP_TAB = "Bride Responses";
 const GROOM_RSVP_TAB = "Groom Responses";
-
-/**
- * Your guest list tabs are named:
- * Round 1, Round 2, Round 3
- */
-function getRoundTabName_() {
-  if (ACTIVE_INVITE_ROUND === 1) return "Round 1";
-  if (ACTIVE_INVITE_ROUND === 2) return "Round 2";
-  if (ACTIVE_INVITE_ROUND === 3) return "Round 3";
-  throw new Error("ACTIVE_INVITE_ROUND must be 1, 2, or 3");
-}
 
 /**
  * Column mapping in guest list tab (standardized):
@@ -57,14 +77,6 @@ function doGet(e) {
   try {
     const action = (e.parameter.action || "").trim();
 
-    if (action === "status") {
-      return json({
-        ok: true,
-        closed: isRsvpClosed_(),
-        deadlineText: RSVP_DEADLINE_TEXT
-      }, 200);
-    }
-
     if (action !== "lookup") {
       return json({ ok: false, error: "Unsupported action." }, 400);
     }
@@ -72,16 +84,32 @@ function doGet(e) {
     const nameRaw = (e.parameter.name || "").trim();
     if (!nameRaw) return json({ ok: false, error: "Name is required." }, 400);
 
-    const lookup = lookupGuest_(normalize(nameRaw));
+    const lookup = lookupGuestAcrossRounds_(normalize(nameRaw));
 
     if (!lookup) {
       return json({
         ok: false,
-        error: "We couldn’t find that name on the guest list. Please enter the name exactly as shown on your invitation."
+        code: "NOT_FOUND",
+        error: NOT_FOUND_MESSAGE
       }, 404);
     }
 
-    return json({ ok: true, ...lookup }, 200);
+    if (lookup.error) {
+      return json({
+        ok: false,
+        code: lookup.error,
+        error: AMBIGUOUS_MESSAGE
+      }, 409);
+    }
+
+    const windowStatus = getRsvpWindowStatus_(lookup.side, lookup.round);
+
+    return json({
+      ok: true,
+      ...lookup,
+      status: windowStatus.status,
+      windowText: windowStatus.windowText
+    }, 200);
 
   } catch (err) {
     return json({ ok: false, error: String(err) }, 500);
@@ -96,15 +124,6 @@ function doGet(e) {
 function doPost(e) {
   try {
     const payload = JSON.parse(e.postData.contents || "{}");
-
-    if (isRsvpClosed_()) {
-      return json({
-        ok: false,
-        code: "RSVP_CLOSED",
-        error: "RSVPs are now closed. If you need to make a change, please email us at shelvinancy@gmail.com.",
-        deadlineText: RSVP_DEADLINE_TEXT
-      }, 403);
-    }
 
     const nameRaw = (payload.name || "").trim();
     const email = (payload.email || "").trim();
@@ -125,15 +144,43 @@ function doPost(e) {
       return json({ ok: false, error: "Email is required if you are attending." }, 400);
     }
 
-    // Determine side + allowed caps from guest list (active round only)
+    // Determine side + allowed caps from guest list (any round)
     const nameKey = normalize(nameRaw);
-    const lookup = lookupGuest_(nameKey);
+    const lookup = lookupGuestAcrossRounds_(nameKey);
 
     if (!lookup) {
       return json({
         ok: false,
-        error: "We couldn’t find that name on the guest list. Please enter the name exactly as shown on your invitation."
+        code: "NOT_FOUND",
+        error: NOT_FOUND_MESSAGE
       }, 404);
+    }
+
+    if (lookup.error) {
+      return json({
+        ok: false,
+        code: lookup.error,
+        error: AMBIGUOUS_MESSAGE
+      }, 409);
+    }
+
+    const windowStatus = getRsvpWindowStatus_(lookup.side, lookup.round);
+    if (windowStatus.status === "not_open") {
+      return json({
+        ok: false,
+        code: "RSVP_NOT_OPEN",
+        error: `RSVP is not open yet for your invitation. Your RSVP window is ${windowStatus.windowText}.`,
+        windowText: windowStatus.windowText
+      }, 403);
+    }
+
+    if (windowStatus.status === "closed") {
+      return json({
+        ok: false,
+        code: "RSVP_CLOSED",
+        error: `RSVP is closed for your invitation. Your RSVP window was ${windowStatus.windowText}.`,
+        windowText: windowStatus.windowText
+      }, 403);
     }
 
     // If attending = no, force counts to 0 (simple)
@@ -173,7 +220,7 @@ function doPost(e) {
       kidsUnder5: finalKidsUnder5,
       email: email || "",
       message: message,
-      round: ACTIVE_INVITE_ROUND
+      round: lookup.round
     });
 
     if (result.action === "no_change") {
@@ -185,14 +232,36 @@ function doPost(e) {
 
 
     // Email behavior
+    const windowText = windowStatus.windowText;
+    const summaryLines = buildRsvpSummaryLines_({
+      attending,
+      adults: finalAdults,
+      kids515: finalKids515,
+      kidsUnder5: finalKidsUnder5,
+      email,
+      message
+    }, windowText);
+
     if (attending === "yes") {
-      sendConfirmationEmail_(email, nameRaw);
+      const window = getRsvpWindow_(lookup.side, lookup.round);
+      const deadlineText = getWindowEndDateText_(window);
+      const responseLines = buildRsvpResponseLines_({
+        attending,
+        adults: finalAdults,
+        kids515: finalKids515,
+        kidsUnder5: finalKidsUnder5,
+        email,
+        message
+      });
+      sendConfirmationEmail_(email, nameRaw, responseLines, deadlineText);
     }
 
     return json({
       ok: true,
       side: lookup.side,
-      deadlineText: RSVP_DEADLINE_TEXT
+      round: lookup.round,
+      windowText,
+      summary: summaryLines
     }, 200);
 
 
@@ -206,43 +275,61 @@ function doPost(e) {
  * LOOKUP HELPERS
  * =========================
  */
-function lookupGuest_(nameKey) {
-  const roundTab = getRoundTabName_();
+function lookupGuestAcrossRounds_(nameKey) {
+  if (!nameKey) return null;
 
-  // Try Bride list
-  const bride = findGuestRow_(BRIDE_GUEST_LIST_SPREADSHEET_ID, roundTab, nameKey);
-  if (bride) return { side: "BRIDE", ...bride };
+  const shortKey = buildShortKey_(nameKey);
+  const exactMatches = [];
+  const partialMatches = [];
 
-  // Try Groom list
-  const groom = findGuestRow_(GROOM_GUEST_LIST_SPREADSHEET_ID, roundTab, nameKey);
-  if (groom) return { side: "GROOM", ...groom };
+  const brideSs = SpreadsheetApp.openById(BRIDE_GUEST_LIST_SPREADSHEET_ID);
+  const groomSs = SpreadsheetApp.openById(GROOM_GUEST_LIST_SPREADSHEET_ID);
+
+  for (let i = 0; i < ROUND_TABS.length; i++) {
+    const round = i + 1;
+    const tabName = ROUND_TABS[i];
+
+    collectMatches_(brideSs, tabName, nameKey, shortKey, "BRIDE", round, exactMatches, partialMatches);
+    collectMatches_(groomSs, tabName, nameKey, shortKey, "GROOM", round, exactMatches, partialMatches);
+  }
+
+  if (exactMatches.length === 1) return exactMatches[0];
+  if (exactMatches.length > 1) return { error: "AMBIGUOUS_NAME" };
+
+  if (partialMatches.length === 1) return partialMatches[0];
+  if (partialMatches.length > 1) return { error: "AMBIGUOUS_NAME" };
 
   return null;
 }
 
-function findGuestRow_(spreadsheetId, tabName, nameKey) {
-  const ss = SpreadsheetApp.openById(spreadsheetId);
+function collectMatches_(ss, tabName, nameKey, shortKey, side, round, exactMatches, partialMatches) {
   const sheet = ss.getSheetByName(tabName);
-  if (!sheet) throw new Error(`Guest list tab "${tabName}" not found in spreadsheet ${spreadsheetId}`);
+  if (!sheet) return;
 
   const lastRow = sheet.getLastRow();
-  if (lastRow < 2) return null;
+  if (lastRow < 2) return;
 
   // Read columns A-D for all guests (Row 2 onward)
   const data = sheet.getRange(2, 1, lastRow - 1, 4).getValues();
 
   for (const row of data) {
     const rawName = String(row[COL_NAME - 1] || "");
-    if (normalize(rawName) === nameKey) {
-      const maxAdults = toInt(row[COL_ADULTS - 1]);
-      const maxKids515 = toInt(row[COL_KIDS_515 - 1]);
-      const maxKidsUnder5 = toInt(row[COL_KIDS_U5 - 1]);
+    const normalized = normalize(rawName);
+    if (!normalized) continue;
 
-      return { maxAdults, maxKids515, maxKidsUnder5 };
+    const maxAdults = toInt(row[COL_ADULTS - 1]);
+    const maxKids515 = toInt(row[COL_KIDS_515 - 1]);
+    const maxKidsUnder5 = toInt(row[COL_KIDS_U5 - 1]);
+
+    if (normalized === nameKey) {
+      exactMatches.push({ side, round, maxAdults, maxKids515, maxKidsUnder5 });
+      continue;
+    }
+
+    if (shortKey && buildShortKey_(normalized) === shortKey) {
+      partialMatches.push({ side, round, maxAdults, maxKids515, maxKidsUnder5 });
     }
   }
-
-  return null;
 }
 
 /**
@@ -383,16 +470,18 @@ function upsertRsvpRow_(sheet, rsvp) {
  * EMAIL + HELPERS
  * =========================
  */
-function sendConfirmationEmail_(email, name) {
+function sendConfirmationEmail_(email, name, responseLines, deadlineText) {
   const subject = "RSVP Confirmation - Shelvin & Nancy";
+  const summary = responseLines.map((line) => `- ${line}`).join("\n");
   const body =
 `Hi ${name},
 
 Thank you for your RSVP! We have your response on file.
 
-${RSVP_DEADLINE_TEXT}
+Your RSVP response:
+${summary}
 
-If you need to make changes, please submit the RSVP form again before the deadline or email us at shelvinancy@gmail.com.
+If you need to make changes, please resubmit the RSVP form by ${deadlineText} or email us at shelvinancy@gmail.com.
 
 We will share additional instructions as the date gets closer.
 
@@ -402,8 +491,78 @@ Shelvin & Nancy
   MailApp.sendEmail(email, subject, body);
 }
 
-function isRsvpClosed_() {
-  return new Date() > RSVP_DEADLINE_DATE;
+function getRsvpWindow_(side, round) {
+  const windows = RSVP_WINDOWS[side] || {};
+  const window = windows[round];
+  if (!window) {
+    throw new Error(`Missing RSVP window for ${side} round ${round}`);
+  }
+  return window;
+}
+
+function getRsvpWindowStatus_(side, round) {
+  const window = getRsvpWindow_(side, round);
+  const today = getTodayDateKey_();
+  const windowText = getWindowLabel_(window);
+
+  if (today < window.startDate) {
+    return { status: "not_open", windowText };
+  }
+  if (today > window.endDate) {
+    return { status: "closed", windowText };
+  }
+  return { status: "open", windowText };
+}
+
+function buildRsvpSummaryLines_(rsvp, windowText) {
+  const lines = [`RSVP window: ${windowText}`];
+  lines.push(`Attending: ${rsvp.attending === "yes" ? "Yes" : "No"}`);
+
+  if (rsvp.attending === "yes") {
+    lines.push(`Adults: ${rsvp.adults}`);
+    lines.push(`Children (5-15): ${rsvp.kids515}`);
+    lines.push(`Children (under 5): ${rsvp.kidsUnder5}`);
+  }
+
+  if (rsvp.email) lines.push(`Email: ${rsvp.email}`);
+  if (rsvp.message) lines.push(`Message: ${rsvp.message}`);
+  return lines;
+}
+
+function buildRsvpResponseLines_(rsvp) {
+  const lines = [];
+  lines.push(`Attending: ${rsvp.attending === "yes" ? "Yes" : "No"}`);
+
+  if (rsvp.attending === "yes") {
+    lines.push(`Adults: ${rsvp.adults}`);
+    lines.push(`Children (5-15): ${rsvp.kids515}`);
+    lines.push(`Children (under 5): ${rsvp.kidsUnder5}`);
+  }
+
+  if (rsvp.email) lines.push(`Email: ${rsvp.email}`);
+  if (rsvp.message) lines.push(`Message: ${rsvp.message}`);
+  return lines;
+}
+
+function getWindowLabel_(window) {
+  if (window.label) return window.label;
+  const start = formatDateKey_(window.startDate);
+  const end = formatDateKey_(window.endDate);
+  return `${start} - ${end}`;
+}
+
+function getWindowEndDateText_(window) {
+  return formatDateKey_(window.endDate);
+}
+
+function getTodayDateKey_() {
+  return Utilities.formatDate(new Date(), RSVP_TIMEZONE, "yyyy-MM-dd");
+}
+
+function formatDateKey_(dateKey) {
+  if (!dateKey) return "";
+  const safeDate = new Date(`${dateKey}T12:00:00Z`);
+  return Utilities.formatDate(safeDate, RSVP_TIMEZONE, "MMMM d, yyyy");
 }
 
 function normalize(s) {
@@ -412,6 +571,12 @@ function normalize(s) {
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, "")
     .replace(/\s+/g, " ");
+}
+
+function buildShortKey_(nameKey) {
+  const parts = (nameKey || "").split(" ").filter(Boolean);
+  if (parts.length < 2) return "";
+  return `${parts[0]} ${parts[parts.length - 1]}`;
 }
 
 function toInt(v) {

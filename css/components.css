@@ -157,6 +157,24 @@
   opacity: 0.9;
 }
 
+.rsvp-summary {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px dashed rgba(111, 143, 124, 0.35);
+  border-radius: 12px;
+  background-color: rgba(143, 174, 155, 0.08);
+}
+
+.rsvp-summary p {
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.rsvp-summary ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
 .status.success {
   color: var(--sage-dark);
 }
