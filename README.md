@@ -58,9 +58,10 @@ README.md                  # This file
 - `schedule.html` and `assets/shelvin-nancy-wedding.ics`: schedule times and calendar details.
 - `css/base.css`, `css/layout.css`, `css/components.css`, `css/pages/*.css`: modular styling by layer and page.
 
-## RSVP Documentation
+## Project Documentation
 - `docs/rsvp-windowing.md`: per-side RSVP windows, name matching rules, and error codes.
 - `docs/rsvp-issue.md`: historical notes on the guest list column mapping fix.
+- `docs/responsiveness-todo.md`: responsiveness and typography checklist.
 
 ## Local Development
 1. Open `index.html` directly in a browser, or use a local server for best results:
