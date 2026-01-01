@@ -1,12 +1,9 @@
-# Responsiveness & Typography TODO
+# General TODO
 
-## Hero Image + Overlay Text
+## Responsive + Layout
 - Test the hero on 320px, 375px, and 414px widths for text overlap or clipping.
-- [x] Add responsive hero image sizes (smaller crops or `srcset`) so mobile downloads smaller assets.
 - Adjust `--hero-content-offset` per breakpoint to avoid text sitting on busy areas.
 - Tune the overlay gradient intensity for legibility across devices.
-
-## Navigation + Layout
 - Confirm nav wraps cleanly on small screens without pushing content too far down.
 - Validate card padding/margins for narrow widths and tablets.
 - Check scroll cue alignment on smaller screens.
@@ -15,19 +12,17 @@
 - Verify tap target sizes and input spacing on phones.
 - Check form messaging and summary blocks for line wrapping on narrow widths.
 
-## Typography (Kalnia legibility)
-- [x] Switch body text to Playfair Display and keep Kalnia for headings.
-- If keeping Kalnia for body, test weights 400/500 at 16–18px with slight letter-spacing tweaks.
+## Typography
 - Confirm headings and buttons retain hierarchy and readability on mobile.
+- If keeping Kalnia for body, test weights 400/500 at 16-18px with slight letter-spacing tweaks.
 
-## Content Pending
+## Content
 - Wedding party bios and photos (Bridesmaids and Groomsmen).
 - Registry details and links.
 
-## QA Checklist
+## QA
 - Test iPhone-size, iPad-size, and laptop breakpoints.
 - Verify FAQ accordion animation and readability on narrow screens.
 
-## Completed
-- Align schedule directions card styling and spacing with the other schedule cards.
-- Swap the hero to the portrait couple photo with a landscape crop for larger screens.
+## Backend / Data
+- Add "Unused Invites" column in RSVP response sheets (invited total minus RSVP counts; pending couple approval).
