@@ -5,6 +5,7 @@
 .hero {
   position: relative;
   min-height: 100vh;
+  min-height: 100svh;
   padding: 0;
   overflow: hidden;
   display: grid;
@@ -12,19 +13,36 @@
   text-align: center;
   color: #fff;
   /* Adjust this per breakpoint to move the hero text block up/down. */
-  --hero-content-offset: 120px;
+  --hero-content-offset: clamp(120px, 16vh, 220px);
+  --hero-content-x: 0px;
+  --hero-content-align: center;
+  --hero-cta-align: center;
+  --hero-bg-position: 50% 25%;
+}
+
+.hero-media {
+  position: absolute;
+  inset: 0;
 }
 
 .hero-bg {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center;
   background-color: #1b1b1b;
-  transform: scale(1.02);
+  overflow: hidden;
+  display: block;
+}
+
+.hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--hero-bg-position);
+  transform: scale(1);
   opacity: 0;
   animation: heroFadeIn 1.2s ease-out 0.15s forwards;
   will-change: opacity;
+  display: block;
 }
 
 .hero-overlay {
@@ -32,9 +50,9 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.45),
     rgba(0,0,0,0.35),
-    rgba(0,0,0,0.55)
+    rgba(0,0,0,0.45),
+    rgba(0,0,0,0.65)
   );
 }
 
@@ -46,47 +64,24 @@
 .hero-content {
   position: relative;
   z-index: 2;
-  max-width: 900px;
-  padding: 80px 20px;
-  transform: translateY(var(--hero-content-offset));
-}
-
-.hero-kicker {
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  opacity: 0.95;
-  margin-bottom: 12px;
+  width: min(90vw, 760px);
+  padding: clamp(70px, 10vh, 96px) 20px 72px;
+  text-align: var(--hero-content-align);
+  transform: translate(var(--hero-content-x), var(--hero-content-offset));
 }
 
 .hero-title {
   margin: 0;
-  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  font-size: clamp(2.4rem, 6.5vw, 4.2rem);
   line-height: 1.05;
   font-weight: 700;
   font-family: var(--font-serif);
   text-shadow: 0 10px 30px rgba(0,0,0,0.45);
 }
 
-.hero-details {
-  margin-top: 18px;
-  display: grid;
-  gap: 6px;
-  font-size: 1.05rem;
-  opacity: 0.95;
-}
-
-.hero-welcome {
-  margin: 26px auto 0;
-  max-width: 650px;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  text-shadow: 0 6px 18px rgba(0,0,0,0.35);
-}
-
 .hero-verse {
   margin: 18px auto 0;
-  max-width: 650px;
+  max-width: 620px;
   font-style: italic;
   font-size: 1.05rem;
   opacity: 0.95;
@@ -104,7 +99,7 @@
   margin-top: 26px;
   display: flex;
   gap: 12px;
-  justify-content: center;
+  justify-content: var(--hero-cta-align);
   flex-wrap: wrap;
 }
 
@@ -134,50 +129,78 @@
   backdrop-filter: blur(8px);
 }
 
-.countdown-label {
-  font-size: 0.8rem;
-  opacity: 0.9;
-  margin-bottom: 4px;
-}
-
 .countdown {
   font-weight: 700;
   letter-spacing: 0.03em;
   font-size: 0.95rem;
 }
 
-/* Tablet/phone tweaks: drop text lower without changing desktop. */
-@media (max-width: 1024px) {
-  .hero {
-    /* Increase this to push hero text down on tablets/phones. */
-    --hero-content-offset: 200px;
-  }
-
-  .hero-bg {
-    background-position: center;
+@media (min-width: 900px) {
+  .hero-left {
+    --hero-content-align: left;
+    --hero-cta-align: flex-start;
+    --hero-content-x: clamp(-80px, -6vw, -40px);
   }
 }
 
-/* Mobile tweaks */
+@media (max-width: 1200px) {
+  .hero {
+    --hero-content-offset: clamp(110px, 14vh, 200px);
+    --hero-bg-position: 50% 22%;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero {
+    --hero-content-offset: clamp(150px, 20vh, 240px);
+    --hero-bg-position: 65% 20%;
+  }
+}
+
 @media (max-width: 768px) {
+  .hero {
+    --hero-content-offset: clamp(140px, 18vh, 210px);
+    --hero-bg-position: 62% 18%;
+  }
+
   .hero-content {
-    padding: 90px 16px 70px;
+    padding: 72px 18px 60px;
   }
 
   .hero-top-right {
     top: 12px;
     right: 12px;
+    padding: 8px 10px;
+  }
+
+  .countdown {
+    font-size: 0.85rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2.2rem, 9vw, 3.2rem);
+  }
+
+  .scroll-cue {
+    display: none;
   }
 }
 
 @media (max-width: 520px) {
+  .hero {
+    --hero-content-offset: clamp(130px, 16vh, 190px);
+    --hero-bg-position: 64% 16%;
+  }
+
   .hero-verse {
-    font-size: 1rem;
+    font-size: 0.98rem;
   }
 
   .hero-cta {
     margin-top: 16px;
     gap: 8px;
+    flex-direction: column;
+    align-items: center;
   }
 
   .hero .btn {
