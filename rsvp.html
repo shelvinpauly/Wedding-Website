@@ -111,6 +111,8 @@
   </div>
 </main>
 
+<script src="js/main.js" defer></script>
+
 <script>
   const RSVP_API_URL = "https://script.google.com/macros/s/AKfycbwfrN0GkviwTo_0oHd4VxvUO8a5JGidDhN5p6icOK4Iidye5mfzeNSE_PLxx6YUwkVX/exec";
   const COOLDOWN_SECONDS = 30;
@@ -136,6 +138,11 @@
   let redirectTimer = null;
   let redirectInProgress = false;
   let submitting = false;
+
+  function emitRsvpEvent(name, detail) {
+    if (typeof window.CustomEvent !== "function") return;
+    window.dispatchEvent(new CustomEvent(name, { detail }));
+  }
 
   function startRedirectCountdown(seconds, destination) {
     if (redirectTimer) clearInterval(redirectTimer);
@@ -330,20 +337,29 @@
         if (!response.ok) {
           guestLookup = { status: "invalid", caps: null };
 
+          let lookupResult = "invalid";
+          let lookupReason = "";
+
           if (response.code === "NOT_FOUND") {
             statusEl.innerHTML =
               `We couldn't find that name on the guest list.<br>
               Please double-check the name you typed and make sure it matches the name on your invitation.<br>
               If it looks correct and you still can't submit, please reach out to us.
               Sorry for any confusion!`;
+            lookupReason = "not_found";
           } else if (response.code === "AMBIGUOUS_NAME") {
             statusEl.textContent = response.error || "Please enter your full name as shown on your invitation.";
+            lookupReason = "ambiguous";
           } else {
             statusEl.innerHTML =
               `We're having trouble checking the guest list right now.<br>
               Please refresh and try again. If it continues, email us at
               <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.`;
+            lookupResult = "error";
+            lookupReason = "lookup_failed";
           }
+
+          emitRsvpEvent("rsvp:lookup", { result: lookupResult, reason: lookupReason });
 
           resetUiToSafeState();
           applyUiRules();
@@ -352,6 +368,7 @@
 
         if (response.status === "not_open") {
           guestLookup = { status: "not_open", caps: null, message: buildNotOpenMessage(response.windowText) };
+          emitRsvpEvent("rsvp:lookup", { result: "not_open" });
           resetUiToSafeState();
           applyUiRules();
           return;
@@ -359,6 +376,7 @@
 
         if (response.status === "closed") {
           guestLookup = { status: "closed", caps: null, message: buildClosedMessage(response.windowText) };
+          emitRsvpEvent("rsvp:lookup", { result: "closed" });
           resetUiToSafeState();
           applyUiRules();
           return;
@@ -373,6 +391,7 @@
         if (caps.maxAdults < 1) {
           guestLookup.status = "invalid";
           statusEl.textContent = "This invitation isn't configured correctly. Please email us at shelvinancy@gmail.com.";
+          emitRsvpEvent("rsvp:lookup", { result: "error", reason: "invalid_config" });
           resetUiToSafeState();
           return;
         }
@@ -383,6 +402,7 @@
 
         statusEl.textContent = "";
         applyUiRules();
+        emitRsvpEvent("rsvp:lookup", { result: "valid" });
 
       } catch (err) {
         guestLookup = { status: "invalid", caps: null };
@@ -391,6 +411,8 @@
           `We're having trouble checking the guest list right now.<br>
           Please refresh and try again. If it continues, email us at
           <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.`;
+
+        emitRsvpEvent("rsvp:lookup", { result: "error", reason: "lookup_failed" });
 
         resetUiToSafeState();
       }
@@ -459,6 +481,8 @@
     statusEl.textContent = "Submitting...";
 
     const data = Object.fromEntries(new FormData(form).entries());
+    const attendingValue = (data.attending || "").toLowerCase() === "yes" ? "yes" : "no";
+    emitRsvpEvent("rsvp:submit", { attending: attendingValue });
 
     try {
       const res = await fetch(RSVP_API_URL, {
@@ -477,6 +501,7 @@
           guestLookup = { status: "closed", caps: null, message: out.error || buildClosedMessage(out.windowText || "") };
           resetUiToSafeState();
           applyUiRules();
+          emitRsvpEvent("rsvp:submit_error", { reason: "closed" });
           return;
         }
 
@@ -484,11 +509,13 @@
           guestLookup = { status: "not_open", caps: null, message: out.error || buildNotOpenMessage(out.windowText || "") };
           resetUiToSafeState();
           applyUiRules();
+          emitRsvpEvent("rsvp:submit_error", { reason: "not_open" });
           return;
         }
 
         statusEl.textContent = (out && out.error) ? out.error : "Something went wrong. Please try again.";
         setSubmitEnabled(true);
+        emitRsvpEvent("rsvp:submit_error", { reason: "api_error" });
         return;
       }
 
@@ -529,6 +556,13 @@
           summaryHtml;
       }
 
+      emitRsvpEvent("rsvp:success", {
+        attending: attendingValue,
+        adults: data.adults || "0",
+        kids_5_15: data.kids515 || "0",
+        kids_under_5: data.kidsUnder5 || "0"
+      });
+
       submitting = false;
       startCooldown(COOLDOWN_SECONDS);
 
@@ -543,6 +577,7 @@
       submitting = false;
       statusEl.textContent = "Network error. Please try again in a moment.";
       setSubmitEnabled(true);
+      emitRsvpEvent("rsvp:submit_error", { reason: "network" });
       console.error(err);
     }
   });

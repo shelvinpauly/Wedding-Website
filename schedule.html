@@ -44,15 +44,21 @@
   </p>
 
   <div class="calendar-actions">
-    <a class="btn" href="assets/shelvin-nancy-wedding.ics" download>Add to Apple/Outlook Calendar</a>
+    <a class="btn" href="assets/shelvin-nancy-wedding.ics" download data-analytics-event="calendar_add" data-analytics-calendar-type="ics" data-analytics-calendar-event="all_events">Add to Apple/Outlook Calendar</a>
 
     <a class="btn btn-outline"
+      data-analytics-event="calendar_add"
+      data-analytics-calendar-type="google"
+      data-analytics-calendar-event="ceremony"
       href="https://www.google.com/calendar/render?action=TEMPLATE&text=Shelvin%20%26%20Nancy%20Wedding%20Ceremony&dates=20260417T140000Z/20260417T153000Z&location=First%20Baptist%20Church%20of%20Lincoln%20Gardens%2C%20771%20Somerset%20Street%2C%20Franklin%20Township%2C%20NJ%2008873&details=Please+be+seated+by+9%3A30+AM.+Ceremony+is+10%3A00+AM+-+11%3A30+AM.+More+info%3A+https%3A%2F%2Fshelvinandnancy.com"
       target="_blank" rel="noopener">
       Add Ceremony to Google Calendar
     </a>
 
     <a class="btn btn-outline"
+      data-analytics-event="calendar_add"
+      data-analytics-calendar-type="google"
+      data-analytics-calendar-event="reception"
       href="https://www.google.com/calendar/render?action=TEMPLATE&text=Shelvin%20%26%20Nancy%20Wedding%20Reception&dates=20260417T160000Z/20260417T210000Z&location=The%20Marigold%2C%20315%20Churchill%20Ave%2C%20Somerset%2C%20NJ%2008873&details=Cocktail+hour%3A+12%3A00+PM+-+1%3A00+PM.+Please+be+seated+by+12%3A45+PM.+Reception%3A+1%3A00+PM+-+5%3A00+PM.+More+info%3A+https%3A%2F%2Fshelvinandnancy.com"
       target="_blank" rel="noopener">
       Add Reception to Google Calendar
@@ -79,6 +85,8 @@
 
     <p class="map-link">
       <a
+        data-analytics-event="map_open"
+        data-analytics-location="ceremony"
         href="https://www.google.com/maps/search/?api=1&query=First%20Baptist%20Church%20of%20Lincoln%20Gardens%2C%20771%20Somerset%20Street%2C%20Franklin%20Township%2C%20NJ%2008873"
         target="_blank"
         rel="noopener"
@@ -114,6 +122,8 @@
 
     <p class="map-link">
       <a
+        data-analytics-event="map_open"
+        data-analytics-location="reception"
         href="https://www.google.com/maps/search/?api=1&query=The%20Marigold%2C%20315%20Churchill%20Ave%2C%20Somerset%2C%20NJ%2008873"
         target="_blank"
         rel="noopener"
@@ -134,6 +144,8 @@
     <p>
       <a
         class="btn btn-outline"
+        data-analytics-event="directions_open"
+        data-analytics-route="ceremony_to_reception"
         href="https://www.google.com/maps/dir/?api=1&origin=First%20Baptist%20Church%20of%20Lincoln%20Gardens%2C%20771%20Somerset%20Street%2C%20Franklin%20Township%2C%20NJ%2008873&destination=The%20Marigold%2C%20315%20Churchill%20Ave%2C%20Somerset%2C%20NJ%2008873&travelmode=driving"
         target="_blank"
         rel="noopener"
@@ -166,6 +178,8 @@
 <footer>
   &copy; Shelvin & Nancy
 </footer>
+
+<script src="js/main.js" defer></script>
 
 </body>
 </html>
