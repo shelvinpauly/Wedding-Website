@@ -6,23 +6,45 @@
   <title>Shelvin & Nancy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Kalnia:wght@600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Kalnia:wght@600;700&display=swap">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/pages/home.css">
-  <link rel="preload" as="image" href="images/hero-home-wide.webp" type="image/webp" media="(min-width: 769px)">
-  <link rel="preload" as="image" href="images/hero-home-portrait.webp" type="image/webp" media="(max-width: 768px)">
+  <link rel="preload" as="image" href="images/hero-home-wide-2000.webp" type="image/webp"
+    imagesrcset="images/hero-home-wide-1200.webp 1200w, images/hero-home-wide-1600.webp 1600w, images/hero-home-wide-2000.webp 2000w, images/hero-home-wide-2500.webp 2500w"
+    imagesizes="100vw" media="(min-width: 769px)">
+  <link rel="preload" as="image" href="images/hero-home-portrait-1000.webp" type="image/webp"
+    imagesrcset="images/hero-home-portrait-800.webp 800w, images/hero-home-portrait-1000.webp 1000w, images/hero-home-portrait-1200.webp 1200w"
+    imagesizes="100vw" media="(max-width: 768px)">
 </head>
 <body>
 
-<header class="hero hero-left">
+<header class="hero">
   <div class="hero-media">
     <picture class="hero-bg" aria-hidden="true">
-      <source srcset="images/hero-home-portrait.webp" type="image/webp" media="(max-width: 768px)">
-      <source srcset="images/hero-home-portrait.jpg" media="(max-width: 768px)">
-      <source srcset="images/hero-home-wide.webp" type="image/webp" media="(min-width: 769px)">
-      <img src="images/hero-home-wide.jpg" alt="" loading="eager" decoding="async" fetchpriority="high">
+      <source
+        srcset="images/hero-home-portrait-800.webp 800w, images/hero-home-portrait-1000.webp 1000w, images/hero-home-portrait-1200.webp 1200w"
+        sizes="100vw"
+        type="image/webp"
+        media="(max-width: 768px)">
+      <source
+        srcset="images/hero-home-portrait-800.jpg 800w, images/hero-home-portrait-1000.jpg 1000w, images/hero-home-portrait-1200.jpg 1200w"
+        sizes="100vw"
+        media="(max-width: 768px)">
+      <source
+        srcset="images/hero-home-wide-1200.webp 1200w, images/hero-home-wide-1600.webp 1600w, images/hero-home-wide-2000.webp 2000w, images/hero-home-wide-2500.webp 2500w"
+        sizes="100vw"
+        type="image/webp"
+        media="(min-width: 769px)">
+      <img
+        src="images/hero-home-wide-1600.jpg"
+        srcset="images/hero-home-wide-1200.jpg 1200w, images/hero-home-wide-1600.jpg 1600w, images/hero-home-wide-2000.jpg 2000w, images/hero-home-wide-2500.jpg 2500w"
+        sizes="100vw"
+        alt=""
+        loading="eager"
+        decoding="async"
+        fetchpriority="high">
     </picture>
     <div class="hero-overlay"></div>
     <div class="hero-top-right">
@@ -53,7 +75,7 @@
 
 </header>
 
-<script src="js/main.js"></script>
+<script src="js/main.js" defer></script>
 
 <nav>
   <a href="index.html" aria-current="page">Home</a>
@@ -132,7 +154,6 @@
 
 </body>
 </html>
-
 
 
 
