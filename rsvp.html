@@ -95,8 +95,7 @@
       <!-- Shown only if attending = NO -->
       <div id="declineMessage" class="hidden">
         <p class="soft-note">
-          We'll miss you! If anything changes, please email us at
-          <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.
+          We'll miss you! You can still update your RSVP within your RSVP window.
         </p>
       </div>
 
@@ -189,6 +188,12 @@
     return `RSVP is closed for your invitation.${suffix}`;
   }
 
+  function getWindowEndText(windowText) {
+    if (!windowText) return "";
+    const parts = windowText.split(/\s+-\s+/);
+    return (parts.length > 1 ? parts[parts.length - 1] : windowText).trim();
+  }
+
   function escapeHtml(value) {
     return String(value)
       .replace(/&/g, "&amp;")
@@ -206,6 +211,20 @@
     submitBtn.disabled = !enabled;
     submitBtn.style.opacity = enabled ? "1" : "0.6";
     submitBtn.style.cursor = enabled ? "pointer" : "not-allowed";
+  }
+
+  function focusStatusMessage() {
+    const messageText = statusEl.textContent.trim();
+    if (!messageText && !statusEl.innerHTML.trim()) return;
+
+    if (!statusEl.hasAttribute("tabindex")) {
+      statusEl.setAttribute("tabindex", "-1");
+    }
+
+    requestAnimationFrame(() => {
+      statusEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      statusEl.focus({ preventScroll: true });
+    });
   }
 
   function fillSelect(selectEl, min, max, defaultValue) {
@@ -515,6 +534,7 @@
 
         statusEl.textContent = (out && out.error) ? out.error : "Something went wrong. Please try again.";
         setSubmitEnabled(true);
+        focusStatusMessage();
         emitRsvpEvent("rsvp:submit_error", { reason: "api_error" });
         return;
       }
@@ -539,11 +559,14 @@
 
       // Success messages
       if ((data.attending || "").toLowerCase() === "no") {
+        const endDateText = getWindowEndText(windowText);
+        const updateMessage = endDateText
+          ? `You can still update your RSVP by ${endDateText}, if anything changes.`
+          : "You can still update your RSVP before your RSVP window closes, if anything changes.";
+
         statusEl.innerHTML =
           `Thanks for letting us know - we'll miss you.<br>` +
-          `If anything changes, please email us at ` +
-          `<a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.` +
-          summaryHtml;
+          `${updateMessage}`;
 
         // Keep form mostly as-is; but hide extra fields anyway
         setHidden(attendingFields, true);
@@ -556,6 +579,7 @@
           summaryHtml;
       }
 
+      focusStatusMessage();
       emitRsvpEvent("rsvp:success", {
         attending: attendingValue,
         adults: data.adults || "0",
@@ -577,6 +601,7 @@
       submitting = false;
       statusEl.textContent = "Network error. Please try again in a moment.";
       setSubmitEnabled(true);
+      focusStatusMessage();
       emitRsvpEvent("rsvp:submit_error", { reason: "network" });
       console.error(err);
     }
