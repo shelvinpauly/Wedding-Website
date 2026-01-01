@@ -41,6 +41,12 @@ main {
   padding: 24px 18px;
 }
 
+main > section,
+main > .card {
+  content-visibility: auto;
+  contain-intrinsic-size: 700px;
+}
+
 h1, h2, h3 {
   font-family: var(--font-serif);
   font-weight: 600;

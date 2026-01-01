@@ -77,6 +77,16 @@
   font-weight: 700;
   font-family: var(--font-serif);
   text-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 22px;
+  background: rgba(18, 18, 18, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .hero-verse {
@@ -103,6 +113,12 @@
   flex-wrap: wrap;
 }
 
+@media (min-width: 900px) {
+  .hero {
+    --hero-content-x: clamp(20px, 3vw, 80px);
+  }
+}
+
 /* Hero-specific button styling */
 .hero .btn-outline {
   color: #fff;
@@ -122,25 +138,22 @@
   top: 18px;
   right: 18px;
   z-index: 3;
-  text-align: right;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(0,0,0,0.25);
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(18, 18, 18, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .countdown {
   font-weight: 700;
   letter-spacing: 0.03em;
   font-size: 0.95rem;
-}
-
-@media (min-width: 900px) {
-  .hero-left {
-    --hero-content-align: left;
-    --hero-cta-align: flex-start;
-    --hero-content-x: clamp(-80px, -6vw, -40px);
-  }
 }
 
 @media (max-width: 1200px) {
@@ -190,6 +203,10 @@
   .hero {
     --hero-content-offset: clamp(130px, 16vh, 190px);
     --hero-bg-position: 64% 16%;
+  }
+
+  .hero-title {
+    padding: 8px 18px;
   }
 
   .hero-verse {
