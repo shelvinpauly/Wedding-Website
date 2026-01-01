@@ -71,27 +71,6 @@
   opacity: 0.85;
 }
 
-.directions-card {
-  margin: 18px 0 6px;
-  padding: 14px 16px;
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  background-color: var(--bg-card);
-  box-shadow: var(--shadow-soft);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.directions-card:hover {
-  border-color: var(--sage);
-  box-shadow: var(--shadow-lift);
-  transform: translateY(-2px);
-}
-
-.directions-card h3 {
-  margin: 0 0 6px;
-  font-size: 1.05rem;
-}
-
 .schedule-card {
   margin-bottom: 22px;
 }

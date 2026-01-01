@@ -4,22 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shelvin & Nancy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Kalnia:wght@600;700&display=swap">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/pages/home.css">
-  <link rel="preload" as="image" href="images/hero-2500.webp" type="image/webp">
-  <link rel="preload" as="image" href="images/hero-2500.jpg" type="image/jpeg">
+  <link rel="preload" as="image" href="images/hero-home-wide.webp" type="image/webp" media="(min-width: 769px)">
+  <link rel="preload" as="image" href="images/hero-home-portrait.webp" type="image/webp" media="(max-width: 768px)">
 </head>
 <body>
 
-<header class="hero">
-  <div class="hero-bg" style="background-image: url('images/hero-2500.jpg'); background-image: -webkit-image-set(url('images/hero-2500.webp') type('image/webp'), url('images/hero-2500.jpg') type('image/jpeg')); background-image: image-set(url('images/hero-2500.webp') type('image/webp'), url('images/hero-2500.jpg') type('image/jpeg'));"></div>
-
-  <div class="hero-overlay"></div>
-
-  <div class="hero-top-right">
-    <div id="countdown" class="countdown">Loading...</div>
+<header class="hero hero-left">
+  <div class="hero-media">
+    <picture class="hero-bg" aria-hidden="true">
+      <source srcset="images/hero-home-portrait.webp" type="image/webp" media="(max-width: 768px)">
+      <source srcset="images/hero-home-portrait.jpg" media="(max-width: 768px)">
+      <source srcset="images/hero-home-wide.webp" type="image/webp" media="(min-width: 769px)">
+      <img src="images/hero-home-wide.jpg" alt="" loading="eager" decoding="async" fetchpriority="high">
+    </picture>
+    <div class="hero-overlay"></div>
+    <div class="hero-top-right">
+      <div id="countdown" class="countdown">Loading...</div>
+    </div>
   </div>
 
 
