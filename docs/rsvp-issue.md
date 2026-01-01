@@ -22,3 +22,23 @@ RSVP lookups and capacity validation can behave incorrectly in production. The g
 ## Verification Plan
 - Lookup a name with punctuation and confirm it matches without punctuation.
 - Confirm adults/kids limits match the A–D columns across all rounds.
+
+---
+
+## Email Confirmation Formatting
+
+## Summary
+RSVP confirmation emails occasionally wrap the RSVP deadline mid-sentence (for example, splitting the year onto a new line).
+
+## Impact
+The deadline sentence looks broken or unprofessional in some email clients.
+
+## Root Cause
+Plain-text email clients hard-wrap lines (often around 78 characters). The original sentence was long enough to trigger wrapping.
+
+## Fix
+Keep the deadline sentence concise enough to avoid hard-wraps, and move the support email to a separate short line. Implemented in `code.gs`.
+
+## Verification Plan
+- Send a test RSVP to Gmail and Apple Mail and confirm the deadline sentence stays on one line.
+- Confirm the website link appears in the email footer.

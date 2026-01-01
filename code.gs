@@ -481,12 +481,14 @@ Thank you for your RSVP! We have your response on file.
 Your RSVP response:
 ${summary}
 
-If you need to make changes, please resubmit the RSVP form by ${deadlineText} or email us at shelvinancy@gmail.com.
+If you need to make changes, resubmit the RSVP form by ${deadlineText}.
+Questions? Email us at shelvinancy@gmail.com.
 
 We will share additional instructions as the date gets closer.
 
 With love,
 Shelvin & Nancy
+Website: https://shelvinandnancy.com
 `;
   MailApp.sendEmail(email, subject, body);
 }
