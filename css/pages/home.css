@@ -115,7 +115,7 @@
 
 @media (min-width: 900px) {
   .hero {
-    --hero-content-x: clamp(20px, 3vw, 80px);
+    --hero-content-x: clamp(-480px, -20vw, -240px);
   }
 }
 
