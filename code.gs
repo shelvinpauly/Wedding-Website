@@ -164,6 +164,7 @@ function doPost(e) {
       }, 409);
     }
 
+    const name = lookup.name || nameRaw;
     const windowStatus = getRsvpWindowStatus_(lookup.side, lookup.round);
     if (windowStatus.status === "not_open") {
       return json({
@@ -213,7 +214,7 @@ function doPost(e) {
 
     const result = upsertRsvpRow_(sheet, {
       timestamp: new Date(),
-      name: nameRaw,
+      name: name,
       attending: attending.toUpperCase(),
       adults: finalAdults,
       kids515: finalKids515,
@@ -253,7 +254,7 @@ function doPost(e) {
         email,
         message
       });
-      sendConfirmationEmail_(email, nameRaw, responseLines, deadlineText);
+      sendConfirmationEmail_(email, name, responseLines, deadlineText);
     }
 
     return json({
@@ -313,7 +314,7 @@ function collectMatches_(ss, tabName, nameKey, shortKey, side, round, exactMatch
   const data = sheet.getRange(2, 1, lastRow - 1, 4).getValues();
 
   for (const row of data) {
-    const rawName = String(row[COL_NAME - 1] || "");
+    const rawName = String(row[COL_NAME - 1] || "").trim();
     const normalized = normalize(rawName);
     if (!normalized) continue;
 
@@ -322,12 +323,12 @@ function collectMatches_(ss, tabName, nameKey, shortKey, side, round, exactMatch
     const maxKidsUnder5 = toInt(row[COL_KIDS_U5 - 1]);
 
     if (normalized === nameKey) {
-      exactMatches.push({ side, round, maxAdults, maxKids515, maxKidsUnder5 });
+      exactMatches.push({ side, round, maxAdults, maxKids515, maxKidsUnder5, name: rawName });
       continue;
     }
 
     if (shortKey && buildShortKey_(normalized) === shortKey) {
-      partialMatches.push({ side, round, maxAdults, maxKids515, maxKidsUnder5 });
+      partialMatches.push({ side, round, maxAdults, maxKids515, maxKidsUnder5, name: rawName });
     }
   }
 }
@@ -476,15 +477,17 @@ function sendConfirmationEmail_(email, name, responseLines, deadlineText) {
   const body =
 `Hi ${name},
 
-Thank you for your RSVP! We have your response on file.
+Thank you for your RSVP!
+We are so happy you can join us.
+Your presence means a lot to us.
 
-Your RSVP response:
+Here is what we have down for your party:
 ${summary}
 
-If you need to make changes, resubmit the RSVP form by ${deadlineText}.
+If you need to make changes, please resubmit by ${deadlineText}.
 Questions? Email us at shelvinancy@gmail.com.
 
-We will share additional instructions as the date gets closer.
+We can't wait to celebrate with you.
 
 With love,
 Shelvin & Nancy
@@ -533,16 +536,9 @@ function buildRsvpSummaryLines_(rsvp, windowText) {
 
 function buildRsvpResponseLines_(rsvp) {
   const lines = [];
-  lines.push(`Attending: ${rsvp.attending === "yes" ? "Yes" : "No"}`);
-
-  if (rsvp.attending === "yes") {
-    lines.push(`Adults: ${rsvp.adults}`);
-    lines.push(`Children (5-15): ${rsvp.kids515}`);
-    lines.push(`Children (under 5): ${rsvp.kidsUnder5}`);
-  }
-
-  if (rsvp.email) lines.push(`Email: ${rsvp.email}`);
-  if (rsvp.message) lines.push(`Message: ${rsvp.message}`);
+  lines.push(`Adults: ${rsvp.adults}`);
+  lines.push(`Children (5-15): ${rsvp.kids515}`);
+  lines.push(`Children (under 5): ${rsvp.kidsUnder5}`);
   return lines;
 }
 

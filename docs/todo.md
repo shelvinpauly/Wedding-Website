@@ -26,3 +26,4 @@
 
 ## Backend / Data
 - Add "Unused Invites" column in RSVP response sheets (invited total minus RSVP counts; pending couple approval).
+- Enforce unique RSVP emails across both sides and all rounds (pending couple approval).
