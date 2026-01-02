@@ -19,6 +19,10 @@
 ## Content
 - Wedding party bios and photos (Bridesmaids and Groomsmen).
 - Registry details and links.
+- Registry: confirm retailer links and mailing details for gifts/checks (if needed).
+- Registry: revisit cash/retail logic and page flow after couple confirms preferences.
+- Registry: add Zelle/PayPal/Venmo handles and retail links once confirmed.
+- Add a dedicated "Meet the Couple" section (photos + brief bios; placement TBD).
 
 ## QA
 - Test iPhone-size, iPad-size, and laptop breakpoints.

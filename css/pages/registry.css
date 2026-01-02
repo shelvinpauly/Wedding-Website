@@ -1,0 +1,51 @@
+/* =========================
+   Registry Page
+   ========================= */
+
+.registry-intro p {
+  max-width: 70ch;
+  line-height: 1.7;
+}
+
+.registry-section {
+  margin-top: 28px;
+}
+
+.registry-lede {
+  max-width: 70ch;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+
+.registry-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.registry-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.registry-card .card-meta {
+  margin-top: 0;
+  color: var(--mauve-dark);
+}
+
+.registry-placeholder {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(176, 122, 141, 0.12);
+  color: var(--mauve-dark);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.registry-contact {
+  margin-top: 28px;
+}
