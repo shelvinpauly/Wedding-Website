@@ -78,11 +78,13 @@ function doGet(e) {
     const action = (e.parameter.action || "").trim();
 
     if (action !== "lookup") {
-      return json({ ok: false, error: "Unsupported action." }, 400);
+      return json({ ok: false, code: "UNSUPPORTED_ACTION", error: "Unsupported action." }, 400);
     }
 
     const nameRaw = (e.parameter.name || "").trim();
-    if (!nameRaw) return json({ ok: false, error: "Name is required." }, 400);
+    if (!nameRaw) {
+      return json({ ok: false, code: "NAME_REQUIRED", error: "Name is required." }, 400);
+    }
 
     const lookup = lookupGuestAcrossRounds_(normalize(nameRaw));
 
@@ -112,7 +114,7 @@ function doGet(e) {
     }, 200);
 
   } catch (err) {
-    return json({ ok: false, error: String(err) }, 500);
+    return json({ ok: false, code: "SERVER_ERROR", error: String(err) }, 500);
   }
 }
 
@@ -134,14 +136,14 @@ function doPost(e) {
     const kidsUnder5 = toInt(payload.kidsUnder5);
     const message = (payload.message || "").trim();
 
-    if (!nameRaw) return json({ ok: false, error: "Name is required." }, 400);
+    if (!nameRaw) return json({ ok: false, code: "NAME_REQUIRED", error: "Name is required." }, 400);
     if (!attending || (attending !== "yes" && attending !== "no")) {
-      return json({ ok: false, error: "Please choose whether you will be attending." }, 400);
+      return json({ ok: false, code: "ATTENDING_REQUIRED", error: "Please choose whether you will be attending." }, 400);
     }
 
     // If attending = yes, require email
     if (attending === "yes" && !email) {
-      return json({ ok: false, error: "Email is required if you are attending." }, 400);
+      return json({ ok: false, code: "EMAIL_REQUIRED", error: "Email is required if you are attending." }, 400);
     }
 
     // Determine side + allowed caps from guest list (any round)
@@ -191,26 +193,26 @@ function doPost(e) {
 
     // If attending is YES, at least 1 adult must attend
     if (attending === "yes" && finalAdults < 1) {
-      return json({ ok: false, error: "If you are attending, please select at least 1 adult." }, 400);
+      return json({ ok: false, code: "ADULTS_REQUIRED", error: "If you are attending, please select at least 1 adult." }, 400);
     }
 
 
     // Validate caps (prevents manual HTML tampering)
     if (finalAdults > lookup.maxAdults) {
-      return json({ ok: false, error: `Adults cannot exceed ${lookup.maxAdults}.` }, 400);
+      return json({ ok: false, code: "ADULTS_EXCEEDS", error: `Adults cannot exceed ${lookup.maxAdults}.` }, 400);
     }
     if (finalKids515 > lookup.maxKids515) {
-      return json({ ok: false, error: `Children (5–15) cannot exceed ${lookup.maxKids515}.` }, 400);
+      return json({ ok: false, code: "KIDS_515_EXCEEDS", error: `Children (5–15) cannot exceed ${lookup.maxKids515}.` }, 400);
     }
     if (finalKidsUnder5 > lookup.maxKidsUnder5) {
-      return json({ ok: false, error: `Children (under 5) cannot exceed ${lookup.maxKidsUnder5}.` }, 400);
+      return json({ ok: false, code: "KIDS_U5_EXCEEDS", error: `Children (under 5) cannot exceed ${lookup.maxKidsUnder5}.` }, 400);
     }
 
     // Write RSVP into correct tab in bound spreadsheet
     const rsvpSs = SpreadsheetApp.getActiveSpreadsheet();
     const targetTab = lookup.side === "BRIDE" ? BRIDE_RSVP_TAB : GROOM_RSVP_TAB;
     const sheet = rsvpSs.getSheetByName(targetTab);
-    if (!sheet) return json({ ok: false, error: `Missing tab: ${targetTab}` }, 500);
+    if (!sheet) return json({ ok: false, code: "MISSING_TAB", error: `Missing tab: ${targetTab}` }, 500);
 
     const result = upsertRsvpRow_(sheet, {
       timestamp: new Date(),
@@ -227,6 +229,7 @@ function doPost(e) {
     if (result.action === "no_change") {
       return json({
         ok: false,
+        code: "NO_CHANGE",
         error: "We already have this exact RSVP on file. If you want to update it, please change your response and submit again."
       }, 409);
     }
@@ -267,7 +270,7 @@ function doPost(e) {
 
 
   } catch (err) {
-    return json({ ok: false, error: String(err) }, 500);
+    return json({ ok: false, code: "SERVER_ERROR", error: String(err) }, 500);
   }
 }
 

@@ -44,6 +44,7 @@ To avoid ambiguity:
 - `AMBIGUOUS_NAME`: Multiple guests share the same first + last.
 - `RSVP_NOT_OPEN`: Guest round has not opened yet.
 - `RSVP_CLOSED`: Guest round is closed.
+- Additional POST validation codes: `NAME_REQUIRED`, `ATTENDING_REQUIRED`, `EMAIL_REQUIRED`, `ADULTS_REQUIRED`, `ADULTS_EXCEEDS`, `KIDS_515_EXCEEDS`, `KIDS_U5_EXCEEDS`, `NO_CHANGE`, `MISSING_TAB`, `SERVER_ERROR`.
 
 ## Testing Checklist
 1. Lookup and submit for a groom guest in Round 1 (open).

@@ -34,6 +34,16 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* =========================
+   Notable Mentions
+   ========================= */
+
+.party-mentions {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .party-divider {
   text-align: center;
   color: var(--mauve-dark);
@@ -45,7 +55,8 @@
 
 @media (max-width: 720px) {
   .party-columns,
-  .party-pair {
+  .party-pair,
+  .party-mentions {
     grid-template-columns: 1fr;
   }
 }
@@ -68,6 +79,7 @@
   border-radius: 50%;
   border: 1px dashed rgba(176, 122, 141, 0.4);
   background: linear-gradient(135deg, rgba(176, 122, 141, 0.12), rgba(143, 174, 155, 0.12));
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,6 +88,23 @@
   letter-spacing: 0.12em;
   color: var(--mauve-dark);
   font-weight: 600;
+}
+
+.party-avatar--photo {
+  border-style: solid;
+  background: transparent;
+}
+
+.party-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.party-avatar-img--upper {
+  object-position: 50% 25%;
 }
 
 .party-role {
