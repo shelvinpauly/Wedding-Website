@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shared Album | Shelvin & Nancy</title>
+  <link rel="icon" href="favicon-v2.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32-v2.png">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-3MHV38TYLE"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "G-3MHV38TYLE");
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Kalnia:wght@600;700&display=swap">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages/shared-album.css">
+</head>
+<body>
+
+<header>
+  <h1>Shared Album</h1>
+</header>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="schedule.html">Schedule</a>
+  <a href="wedding-party.html">Wedding Party</a>
+  <a href="shared-album.html" aria-current="page">Shared Album</a>
+  <a href="registry.html">Registry</a>
+  <a href="rsvp.html">RSVP</a>
+  <a href="faqs.html">FAQs</a>
+</nav>
+
+
+<main data-album data-upload-url="https://script.google.com/macros/s/AKfycbw9srb2cPvsMO4zZxoZhp-6CnNkD5ulZ55kqyerAUgRbfbWiSE4GuLO22bOx1uXfLMwaQ/exec" data-gallery-url="https://script.google.com/macros/s/AKfycbw9srb2cPvsMO4zZxoZhp-6CnNkD5ulZ55kqyerAUgRbfbWiSE4GuLO22bOx1uXfLMwaQ/exec?action=gallery" data-refresh-ms="15000">
+  <section class="album-gallery" id="gallery" aria-label="Shared photo gallery">
+    <div class="album-heading">
+      <div>
+        <h2>Shared Album</h2>
+        <p class="album-lede">Uploads appear within a minute.</p>
+      </div>
+      <div class="album-actions">
+        <a class="btn is-disabled" data-upload-link href="#upload" aria-disabled="true">Upload Photos</a>
+        <span class="album-limit">Up to 10 photos</span>
+      </div>
+    </div>
+
+    <p class="album-status" data-upload-status>Upload link coming soon.</p>
+
+    <div class="album-grid" data-album-grid></div>
+    <p class="album-status" data-album-status>Gallery link coming soon.</p>
+  </section>
+
+  <section class="card album-upload" id="upload">
+    <div class="album-upload-header">
+      <h2>Upload Photos</h2>
+      <p class="album-lede">Please share up to 10 photos. Thank you for helping us capture the day.</p>
+    </div>
+
+    <div class="album-upload-frame is-hidden" data-upload-frame-wrap>
+      <iframe class="album-upload-iframe" data-upload-frame title="Upload wedding photos" loading="lazy"></iframe>
+    </div>
+
+    <p class="album-status" data-upload-frame-status>Upload link coming soon.</p>
+
+    <div class="album-qr">
+      <div class="album-qr-box">
+        <img class="album-qr-img" src="https://chart.googleapis.com/chart?cht=qr&chs=320x320&chl=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2FAKfycbw9srb2cPvsMO4zZxoZhp-6CnNkD5ulZ55kqyerAUgRbfbWiSE4GuLO22bOx1uXfLMwaQ%2Fexec" alt="Upload QR code">
+      </div>
+      <div class="album-qr-text">
+        <p class="album-qr-title">Scan to upload</p>
+        <p class="album-qr-note">This QR opens the upload link for the shared album.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>&copy; Shelvin & Nancy</footer>
+
+<script src="js/main.js" defer></script>
+
+</body>
+</html>
