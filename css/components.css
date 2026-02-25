@@ -175,10 +175,6 @@
   padding-left: 18px;
 }
 
-.status.success {
-  color: var(--sage-dark);
-}
-
 .status.error {
   color: var(--mauve-dark);
 }
@@ -238,6 +234,7 @@ form textarea {
   display: grid;
   gap: 14px;
   margin: 0;
+  padding: 4px 0;
 }
 
 .faq-item {

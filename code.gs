@@ -19,7 +19,8 @@ const RSVP_WINDOWS = {
   BRIDE: {
     1: BRIDE_WINDOW,
     2: BRIDE_WINDOW,
-    3: BRIDE_WINDOW
+    3: BRIDE_WINDOW,
+    4: BRIDE_WINDOW
   },
   GROOM: {
     1: {
@@ -36,11 +37,16 @@ const RSVP_WINDOWS = {
       startDate: "2026-02-01",
       endDate: "2026-02-15",
       label: "February 1 - February 15, 2026"
+    },
+    4: {
+      startDate: "2026-02-16",
+      endDate: "2026-03-15",
+      label: "February 16 - March 15, 2026"
     }
   }
 };
 
-const ROUND_TABS = ["Round 1", "Round 2", "Round 3"];
+const ROUND_TABS = ["Round 1", "Round 2", "Round 3", "Round 4"];
 
 const NOT_FOUND_MESSAGE = "We couldn't find that name on the guest list. Please enter the name exactly as shown on your invitation.";
 const AMBIGUOUS_MESSAGE = "We found multiple guests with that first and last name. Please enter your full name as shown on your invitation.";

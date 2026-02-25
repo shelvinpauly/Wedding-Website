@@ -11,6 +11,13 @@
   margin-top: 28px;
 }
 
+/* Avoid clipping on long grids inside this page. */
+.party-intro,
+.party-section {
+  content-visibility: visible;
+  contain-intrinsic-size: none;
+}
+
 .party-columns {
   display: grid;
   gap: 18px;
@@ -35,22 +42,28 @@
 }
 
 /* =========================
-   Notable Mentions
+   Noble Mentions
    ========================= */
 
 .party-mentions {
   display: grid;
   gap: 18px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  padding-bottom: 6px;
+}
+
+.party-mentions .party-card {
+  height: 100%;
 }
 
 .party-divider {
   text-align: center;
   color: var(--mauve-dark);
+  padding-top: 8px;
 }
 
 .party-divider h3 {
-  margin: 8px 0 0;
+  margin: 12px 0 6px;
 }
 
 @media (max-width: 720px) {
@@ -105,6 +118,22 @@
 
 .party-avatar-img--upper {
   object-position: 50% 25%;
+}
+
+.party-avatar-img--mid {
+  object-position: 50% 40%;
+}
+
+.party-avatar-img--reji-suja {
+  object-position: 50% 34%;
+  transform: scale(1.15);
+  transform-origin: center;
+}
+
+.party-avatar-img--joel {
+  object-position: 50% 34%;
+  transform: scale(1.32);
+  transform-origin: center;
 }
 
 .party-role {
