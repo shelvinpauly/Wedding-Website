@@ -19,7 +19,8 @@ const RSVP_WINDOWS = {
   BRIDE: {
     1: BRIDE_WINDOW,
     2: BRIDE_WINDOW,
-    3: BRIDE_WINDOW
+    3: BRIDE_WINDOW,
+    4: BRIDE_WINDOW
   },
   GROOM: {
     1: {
@@ -36,11 +37,16 @@ const RSVP_WINDOWS = {
       startDate: "2026-02-01",
       endDate: "2026-02-15",
       label: "February 1 - February 15, 2026"
+    },
+    4: {
+      startDate: "2026-02-16",
+      endDate: "2026-03-15",
+      label: "February 16 - March 15, 2026"
     }
   }
 };
 
-const ROUND_TABS = ["Round 1", "Round 2", "Round 3"];
+const ROUND_TABS = ["Round 1", "Round 2", "Round 3", "Round 4"];
 
 const NOT_FOUND_MESSAGE = "We couldn't find that name on the guest list. Please enter the name exactly as shown on your invitation.";
 const AMBIGUOUS_MESSAGE = "We found multiple guests with that first and last name. Please enter your full name as shown on your invitation.";
@@ -78,11 +84,13 @@ function doGet(e) {
     const action = (e.parameter.action || "").trim();
 
     if (action !== "lookup") {
-      return json({ ok: false, error: "Unsupported action." }, 400);
+      return json({ ok: false, code: "UNSUPPORTED_ACTION", error: "Unsupported action." }, 400);
     }
 
     const nameRaw = (e.parameter.name || "").trim();
-    if (!nameRaw) return json({ ok: false, error: "Name is required." }, 400);
+    if (!nameRaw) {
+      return json({ ok: false, code: "NAME_REQUIRED", error: "Name is required." }, 400);
+    }
 
     const lookup = lookupGuestAcrossRounds_(normalize(nameRaw));
 
@@ -112,7 +120,7 @@ function doGet(e) {
     }, 200);
 
   } catch (err) {
-    return json({ ok: false, error: String(err) }, 500);
+    return json({ ok: false, code: "SERVER_ERROR", error: String(err) }, 500);
   }
 }
 
@@ -134,14 +142,14 @@ function doPost(e) {
     const kidsUnder5 = toInt(payload.kidsUnder5);
     const message = (payload.message || "").trim();
 
-    if (!nameRaw) return json({ ok: false, error: "Name is required." }, 400);
+    if (!nameRaw) return json({ ok: false, code: "NAME_REQUIRED", error: "Name is required." }, 400);
     if (!attending || (attending !== "yes" && attending !== "no")) {
-      return json({ ok: false, error: "Please choose whether you will be attending." }, 400);
+      return json({ ok: false, code: "ATTENDING_REQUIRED", error: "Please choose whether you will be attending." }, 400);
     }
 
     // If attending = yes, require email
     if (attending === "yes" && !email) {
-      return json({ ok: false, error: "Email is required if you are attending." }, 400);
+      return json({ ok: false, code: "EMAIL_REQUIRED", error: "Email is required if you are attending." }, 400);
     }
 
     // Determine side + allowed caps from guest list (any round)
@@ -164,6 +172,7 @@ function doPost(e) {
       }, 409);
     }
 
+    const name = lookup.name || nameRaw;
     const windowStatus = getRsvpWindowStatus_(lookup.side, lookup.round);
     if (windowStatus.status === "not_open") {
       return json({
@@ -190,30 +199,30 @@ function doPost(e) {
 
     // If attending is YES, at least 1 adult must attend
     if (attending === "yes" && finalAdults < 1) {
-      return json({ ok: false, error: "If you are attending, please select at least 1 adult." }, 400);
+      return json({ ok: false, code: "ADULTS_REQUIRED", error: "If you are attending, please select at least 1 adult." }, 400);
     }
 
 
     // Validate caps (prevents manual HTML tampering)
     if (finalAdults > lookup.maxAdults) {
-      return json({ ok: false, error: `Adults cannot exceed ${lookup.maxAdults}.` }, 400);
+      return json({ ok: false, code: "ADULTS_EXCEEDS", error: `Adults cannot exceed ${lookup.maxAdults}.` }, 400);
     }
     if (finalKids515 > lookup.maxKids515) {
-      return json({ ok: false, error: `Children (5–15) cannot exceed ${lookup.maxKids515}.` }, 400);
+      return json({ ok: false, code: "KIDS_515_EXCEEDS", error: `Children (5–15) cannot exceed ${lookup.maxKids515}.` }, 400);
     }
     if (finalKidsUnder5 > lookup.maxKidsUnder5) {
-      return json({ ok: false, error: `Children (under 5) cannot exceed ${lookup.maxKidsUnder5}.` }, 400);
+      return json({ ok: false, code: "KIDS_U5_EXCEEDS", error: `Children (under 5) cannot exceed ${lookup.maxKidsUnder5}.` }, 400);
     }
 
     // Write RSVP into correct tab in bound spreadsheet
     const rsvpSs = SpreadsheetApp.getActiveSpreadsheet();
     const targetTab = lookup.side === "BRIDE" ? BRIDE_RSVP_TAB : GROOM_RSVP_TAB;
     const sheet = rsvpSs.getSheetByName(targetTab);
-    if (!sheet) return json({ ok: false, error: `Missing tab: ${targetTab}` }, 500);
+    if (!sheet) return json({ ok: false, code: "MISSING_TAB", error: `Missing tab: ${targetTab}` }, 500);
 
     const result = upsertRsvpRow_(sheet, {
       timestamp: new Date(),
-      name: nameRaw,
+      name: name,
       attending: attending.toUpperCase(),
       adults: finalAdults,
       kids515: finalKids515,
@@ -226,6 +235,7 @@ function doPost(e) {
     if (result.action === "no_change") {
       return json({
         ok: false,
+        code: "NO_CHANGE",
         error: "We already have this exact RSVP on file. If you want to update it, please change your response and submit again."
       }, 409);
     }
@@ -253,7 +263,7 @@ function doPost(e) {
         email,
         message
       });
-      sendConfirmationEmail_(email, nameRaw, responseLines, deadlineText);
+      sendConfirmationEmail_(email, name, responseLines, deadlineText);
     }
 
     return json({
@@ -266,7 +276,7 @@ function doPost(e) {
 
 
   } catch (err) {
-    return json({ ok: false, error: String(err) }, 500);
+    return json({ ok: false, code: "SERVER_ERROR", error: String(err) }, 500);
   }
 }
 
@@ -313,7 +323,7 @@ function collectMatches_(ss, tabName, nameKey, shortKey, side, round, exactMatch
   const data = sheet.getRange(2, 1, lastRow - 1, 4).getValues();
 
   for (const row of data) {
-    const rawName = String(row[COL_NAME - 1] || "");
+    const rawName = String(row[COL_NAME - 1] || "").trim();
     const normalized = normalize(rawName);
     if (!normalized) continue;
 
@@ -322,12 +332,12 @@ function collectMatches_(ss, tabName, nameKey, shortKey, side, round, exactMatch
     const maxKidsUnder5 = toInt(row[COL_KIDS_U5 - 1]);
 
     if (normalized === nameKey) {
-      exactMatches.push({ side, round, maxAdults, maxKids515, maxKidsUnder5 });
+      exactMatches.push({ side, round, maxAdults, maxKids515, maxKidsUnder5, name: rawName });
       continue;
     }
 
     if (shortKey && buildShortKey_(normalized) === shortKey) {
-      partialMatches.push({ side, round, maxAdults, maxKids515, maxKidsUnder5 });
+      partialMatches.push({ side, round, maxAdults, maxKids515, maxKidsUnder5, name: rawName });
     }
   }
 }
@@ -476,15 +486,17 @@ function sendConfirmationEmail_(email, name, responseLines, deadlineText) {
   const body =
 `Hi ${name},
 
-Thank you for your RSVP! We have your response on file.
+Thank you for your RSVP!
+We are so happy you can join us.
+Your presence means a lot to us.
 
-Your RSVP response:
+Here is what we have down for your party:
 ${summary}
 
-If you need to make changes, resubmit the RSVP form by ${deadlineText}.
+If you need to make changes, please resubmit by ${deadlineText}.
 Questions? Email us at shelvinancy@gmail.com.
 
-We will share additional instructions as the date gets closer.
+We can't wait to celebrate with you.
 
 With love,
 Shelvin & Nancy
@@ -533,16 +545,9 @@ function buildRsvpSummaryLines_(rsvp, windowText) {
 
 function buildRsvpResponseLines_(rsvp) {
   const lines = [];
-  lines.push(`Attending: ${rsvp.attending === "yes" ? "Yes" : "No"}`);
-
-  if (rsvp.attending === "yes") {
-    lines.push(`Adults: ${rsvp.adults}`);
-    lines.push(`Children (5-15): ${rsvp.kids515}`);
-    lines.push(`Children (under 5): ${rsvp.kidsUnder5}`);
-  }
-
-  if (rsvp.email) lines.push(`Email: ${rsvp.email}`);
-  if (rsvp.message) lines.push(`Message: ${rsvp.message}`);
+  lines.push(`Adults: ${rsvp.adults}`);
+  lines.push(`Children (5-15): ${rsvp.kids515}`);
+  lines.push(`Children (under 5): ${rsvp.kidsUnder5}`);
   return lines;
 }
 

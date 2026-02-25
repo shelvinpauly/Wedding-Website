@@ -19,6 +19,11 @@
 ## Content
 - Wedding party bios and photos (Bridesmaids and Groomsmen).
 - Registry details and links.
+- Registry: confirm retailer links and mailing details for gifts/checks (if needed).
+- Registry: revisit cash/retail logic and page flow after couple confirms preferences.
+- Registry: add Zelle/Venmo handles and QR codes once confirmed.
+- Add a dedicated "Meet the Couple" section after the Welcome paragraph (photos + brief bios).
+- Layout ideas to revisit: diptych side-by-side portraits, filmstrip scroll-snap, or hybrid (desktop side-by-side, mobile carousel).
 
 ## QA
 - Test iPhone-size, iPad-size, and laptop breakpoints.
@@ -26,3 +31,4 @@
 
 ## Backend / Data
 - Add "Unused Invites" column in RSVP response sheets (invited total minus RSVP counts; pending couple approval).
+- Enforce unique RSVP emails across both sides and all rounds (pending couple approval).

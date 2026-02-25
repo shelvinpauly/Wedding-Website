@@ -1,0 +1,158 @@
+/* =========================
+   Wedding Party Page
+   ========================= */
+
+.party-intro p {
+  max-width: 70ch;
+  line-height: 1.7;
+}
+
+.party-section {
+  margin-top: 28px;
+}
+
+/* Avoid clipping on long grids inside this page. */
+.party-intro,
+.party-section {
+  content-visibility: visible;
+  contain-intrinsic-size: none;
+}
+
+.party-columns {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  text-align: center;
+}
+
+.party-columns h2 {
+  margin: 0;
+}
+
+.party-pairs {
+  margin-top: 14px;
+  display: grid;
+  gap: 20px;
+}
+
+.party-pair {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* =========================
+   Noble Mentions
+   ========================= */
+
+.party-mentions {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  padding-bottom: 6px;
+}
+
+.party-mentions .party-card {
+  height: 100%;
+}
+
+.party-divider {
+  text-align: center;
+  color: var(--mauve-dark);
+  padding-top: 8px;
+}
+
+.party-divider h3 {
+  margin: 12px 0 6px;
+}
+
+@media (max-width: 720px) {
+  .party-columns,
+  .party-pair,
+  .party-mentions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.party-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.party-card h3 {
+  margin: 0;
+}
+
+.party-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 1px dashed rgba(176, 122, 141, 0.4);
+  background: linear-gradient(135deg, rgba(176, 122, 141, 0.12), rgba(143, 174, 155, 0.12));
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--mauve-dark);
+  font-weight: 600;
+}
+
+.party-avatar--photo {
+  border-style: solid;
+  background: transparent;
+}
+
+.party-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.party-avatar-img--upper {
+  object-position: 50% 25%;
+}
+
+.party-avatar-img--mid {
+  object-position: 50% 40%;
+}
+
+.party-avatar-img--reji-suja {
+  object-position: 50% 34%;
+  transform: scale(1.15);
+  transform-origin: center;
+}
+
+.party-avatar-img--joel {
+  object-position: 50% 34%;
+  transform: scale(1.32);
+  transform-origin: center;
+}
+
+.party-role {
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(143, 174, 155, 0.16);
+  color: var(--sage-dark);
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.party-role-lead {
+  background: rgba(176, 122, 141, 0.18);
+  color: var(--mauve-dark);
+}
+
+.party-note {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}

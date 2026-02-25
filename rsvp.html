@@ -515,12 +515,14 @@
 
       if (!out || out.ok !== true) {
         submitting = false;
+        const httpStatus = res && typeof res.status === "number" ? res.status : undefined;
+        const apiCode = out && out.code ? out.code : undefined;
 
         if (out && out.code === "RSVP_CLOSED") {
           guestLookup = { status: "closed", caps: null, message: out.error || buildClosedMessage(out.windowText || "") };
           resetUiToSafeState();
           applyUiRules();
-          emitRsvpEvent("rsvp:submit_error", { reason: "closed" });
+          emitRsvpEvent("rsvp:submit_error", { reason: "closed", api_code: apiCode, http_status: httpStatus });
           return;
         }
 
@@ -528,14 +530,14 @@
           guestLookup = { status: "not_open", caps: null, message: out.error || buildNotOpenMessage(out.windowText || "") };
           resetUiToSafeState();
           applyUiRules();
-          emitRsvpEvent("rsvp:submit_error", { reason: "not_open" });
+          emitRsvpEvent("rsvp:submit_error", { reason: "not_open", api_code: apiCode, http_status: httpStatus });
           return;
         }
 
         statusEl.textContent = (out && out.error) ? out.error : "Something went wrong. Please try again.";
         setSubmitEnabled(true);
         focusStatusMessage();
-        emitRsvpEvent("rsvp:submit_error", { reason: "api_error" });
+        emitRsvpEvent("rsvp:submit_error", { reason: "api_error", api_code: apiCode, http_status: httpStatus });
         return;
       }
 
@@ -602,7 +604,7 @@
       statusEl.textContent = "Network error. Please try again in a moment.";
       setSubmitEnabled(true);
       focusStatusMessage();
-      emitRsvpEvent("rsvp:submit_error", { reason: "network" });
+      emitRsvpEvent("rsvp:submit_error", { reason: "network", http_status: 0 });
       console.error(err);
     }
   });

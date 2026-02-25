@@ -147,7 +147,9 @@
   window.addEventListener("rsvp:submit_error", (event) => {
     const detail = event.detail || {};
     trackEvent("rsvp_error", {
-      reason: detail.reason
+      reason: detail.reason,
+      api_code: detail.api_code,
+      http_status: detail.http_status
     });
   });
 
