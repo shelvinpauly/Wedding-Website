@@ -3,7 +3,7 @@
 ## Summary
 The RSVP flow now supports different schedules for each side:
 - Groom: four rounds (with Round 4 added).
-- Bride: one continuous window through February 15, 2026.
+- Bride: one continuous window through February 25, 2026.
 
 Guests are matched to a round by the sheet tab where their name appears, and the RSVP window is enforced per guest.
 
@@ -51,7 +51,7 @@ To avoid ambiguity:
 2. Lookup a groom guest in Round 2 before Jan 16 (should show not open).
 3. Lookup a groom guest in Round 3 after Feb 15 (should show closed).
 4. Lookup and submit for a groom guest in Round 4 during Feb 16-Mar 15.
-5. Lookup and submit for a bride guest (open through Feb 15).
+5. Lookup and submit for a bride guest (open through Feb 25).
 6. Verify the confirmation email includes the RSVP window and response summary.
 7. Test a guest with a middle name/initial using only first + last (should match if unique).
 8. Test two guests that share the same first + last (should show ambiguous name).

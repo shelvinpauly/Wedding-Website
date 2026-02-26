@@ -11,8 +11,8 @@ const RSVP_TIMEZONE = "America/New_York";
 // RSVP windows by side + round. Month is 0-based (Jan = 0).
 const BRIDE_WINDOW = {
   startDate: "2020-01-01", // open now
-  endDate: "2026-02-15",
-  label: "Now - February 15, 2026"
+  endDate: "2026-02-25",
+  label: "Now - February 25, 2026"
 };
 
 const RSVP_WINDOWS = {
