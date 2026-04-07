@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Seating | Shelvin & Nancy</title>
+  <link rel="icon" href="favicon-v2.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32-v2.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Kalnia:wght@600;700&display=swap">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages/seating.css">
+</head>
+<body>
+  <header>
+    <h1>Find Your Table</h1>
+  </header>
+
+  <main>
+    <section class="card seating-intro">
+      <h2>Seating Chart</h2>
+      <p>
+        Enter the name exactly as it appears on the invitation, then pick your team.
+        We'll show your table number and the guests in your party.
+      </p>
+    </section>
+
+    <section class="card seating-card">
+      <form id="seatingForm" class="seating-form">
+        <label>
+          Name on invite *
+          <input id="inviteName" name="name" type="text" autocomplete="name" required>
+        </label>
+
+        <fieldset class="team-fieldset">
+          <legend>Which team are you on? *</legend>
+
+          <div class="team-grid" role="radiogroup" aria-label="Team selection">
+            <label class="team-option">
+              <input type="radio" name="team" value="BRIDE" required>
+              <span class="team-card">
+                <img class="team-img" src="images/Seating/team-bride.svg" alt="" aria-hidden="true" width="84" height="84" loading="lazy" decoding="async">
+                <span class="team-name">Team Bride</span>
+                <span class="team-sub">Here for the happy tears</span>
+              </span>
+            </label>
+
+            <label class="team-option">
+              <input type="radio" name="team" value="GROOM" required>
+              <span class="team-card">
+                <img class="team-img" src="images/Seating/team-groom.svg" alt="" aria-hidden="true" width="84" height="84" loading="lazy" decoding="async">
+                <span class="team-name">Team Groom</span>
+                <span class="team-sub">Here for the good vibes</span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+
+        <button class="btn" type="submit">Show my table</button>
+
+        <p id="status" class="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="resultCard" class="card seating-result hidden" aria-live="polite">
+      <h2>Your Table</h2>
+      <p class="table-number" id="tableNumber"></p>
+      <div class="result-details">
+        <p class="result-lede" id="resultLede"></p>
+        <div class="result-list">
+          <!-- <h3>Number of seats</h3> -->
+          <ul id="guestList"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>&copy; Shelvin & Nancy</footer>
+
+  <script>
+    // Set this to your Seating Chart Apps Script web app URL (not the RSVP one).
+    // Example: "https://script.google.com/macros/s/XXXXX/exec"
+    const SEATING_API_URL = "https://script.google.com/macros/s/AKfycbyPypGPBNBpVdEWCAXp7jU3RaqVmLFhyX9AGEJ-EFlon-ZbfuG6LiXeHhUfkt4RCKi1Zw/exec";
+
+    const form = document.getElementById("seatingForm");
+    const statusEl = document.getElementById("status");
+    const resultCard = document.getElementById("resultCard");
+    const tableNumberEl = document.getElementById("tableNumber");
+    const resultLedeEl = document.getElementById("resultLede");
+    const guestListEl = document.getElementById("guestList");
+
+    function setStatus(message, kind) {
+      statusEl.classList.remove("error", "success");
+      if (kind) statusEl.classList.add(kind);
+      statusEl.textContent = message || "";
+    }
+
+    function setHidden(el, hidden) {
+      el.classList.toggle("hidden", Boolean(hidden));
+    }
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("\"", "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function renderParty(out) {
+      guestListEl.innerHTML = "";
+
+      const li = document.createElement("li");
+      li.textContent = `Number of seats: ${out && out.seats ? out.seats : "TBD"}`;
+      guestListEl.appendChild(li);
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setHidden(resultCard, true);
+      setStatus("");
+
+      if (!SEATING_API_URL) {
+        setStatus("Seating chart is not configured yet. Please ask the hosts for help.", "error");
+        return;
+      }
+
+      const data = Object.fromEntries(new FormData(form).entries());
+      const name = String(data.name || "").trim();
+      const team = String(data.team || "").trim();
+
+      if (!name) {
+        setStatus("Please enter the name from the invitation.", "error");
+        return;
+      }
+      if (!team) {
+        setStatus("Please pick a team.", "error");
+        return;
+      }
+
+      setStatus("Looking up your table (this can take a few seconds)...");
+
+      const url = new URL(SEATING_API_URL);
+      url.searchParams.set("action", "seating");
+      url.searchParams.set("name", name);
+      url.searchParams.set("team", team);
+      // Backward-compat for older seating/RVSP scripts that expect `side`.
+      url.searchParams.set("side", team);
+      const accessCode = new URLSearchParams(window.location.search).get("code");
+      if (accessCode) url.searchParams.set("code", accessCode);
+
+      try {
+        const res = await fetch(url.toString());
+        let out;
+        try { out = await res.json(); } catch (e) { out = null; }
+
+        if (!out || out.ok !== true) {
+          let message = "Something went wrong. Please try again in a moment.";
+          if (out && out.code === "NOT_FOUND") {
+            message = "Need a hand finding your seat? Please see the ushers for your seating placement.";
+          } else if (out && out.error) {
+            message = out.error;
+          }
+          setStatus(message);
+          return;
+        }
+
+        const tableLabel = out.table ? String(out.table).trim() : "";
+        const normalizedTable = tableLabel && /^table\b/i.test(tableLabel) ? tableLabel : (tableLabel ? `Table ${tableLabel}` : "");
+
+        const seatsRaw = out && typeof out.seats !== "undefined" ? Number(out.seats) : NaN;
+        const seats = Number.isFinite(seatsRaw) && seatsRaw > 0 ? seatsRaw : 0;
+
+        if (!normalizedTable || !seats) {
+          setStatus("Need a hand finding your seat? Please see the ushers for your seating placement.");
+          return;
+        }
+
+        tableNumberEl.textContent = normalizedTable || "Table TBD";
+        resultLedeEl.innerHTML = `Please proceed to <strong>${escapeHtml(normalizedTable || "your table")}</strong> with your guests.`;
+        renderParty(out);
+
+        setHidden(resultCard, false);
+        setStatus("Found it!", "success");
+      } catch (err) {
+        setStatus("Something went wrong. Please try again in a moment.", "error");
+      }
+    });
+  </script>
+</body>
+</html>
