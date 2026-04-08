@@ -25,7 +25,7 @@
       <h2>Seating Chart</h2>
       <p>
         Enter the name exactly as it appears on the invitation, then pick your team.
-        We'll show your table number and the guests in your party.
+        We'll show your table number and number of seats.
       </p>
     </section>
 
@@ -60,7 +60,7 @@
           </div>
         </fieldset>
 
-        <button class="btn" type="submit">Show my table</button>
+        <button id="submitBtn" class="btn" type="submit">Show my table</button>
 
         <p id="status" class="status" aria-live="polite"></p>
       </form>
@@ -68,13 +68,27 @@
 
     <section id="resultCard" class="card seating-result hidden" aria-live="polite">
       <h2>Your Table</h2>
-      <p class="table-number" id="tableNumber"></p>
+      <div class="table-visual" aria-hidden="true">
+        <span class="table-chair table-chair--1"></span>
+        <span class="table-chair table-chair--2"></span>
+        <span class="table-chair table-chair--3"></span>
+        <span class="table-chair table-chair--4"></span>
+        <span class="table-chair table-chair--5"></span>
+        <span class="table-chair table-chair--6"></span>
+        <span class="table-chair table-chair--7"></span>
+        <span class="table-chair table-chair--8"></span>
+        <div class="table-center">
+          <span class="table-center-label">Table</span>
+          <p class="table-number" id="tableNumber"></p>
+        </div>
+      </div>
       <div class="result-details">
         <p class="result-lede" id="resultLede"></p>
-        <div class="result-list">
-          <!-- <h3>Number of seats</h3> -->
-          <ul id="guestList"></ul>
-        </div>
+        <p class="seat-pill" id="seatCount">Number of seats: TBD</p>
+        <p class="seating-usher-note">Need help? Please see the ushers at the reception entrance.</p>
+      </div>
+      <div class="result-actions">
+        <button id="lookupAnotherBtn" class="btn seating-btn-secondary" type="button">Look up another name</button>
       </div>
     </section>
   </main>
@@ -87,14 +101,20 @@
     const SEATING_API_URL = "https://script.google.com/macros/s/AKfycbyPypGPBNBpVdEWCAXp7jU3RaqVmLFhyX9AGEJ-EFlon-ZbfuG6LiXeHhUfkt4RCKi1Zw/exec";
 
     const form = document.getElementById("seatingForm");
+    const nameInput = document.getElementById("inviteName");
+    const introCard = document.querySelector(".seating-intro");
+    const seatingCard = document.querySelector(".seating-card");
     const statusEl = document.getElementById("status");
+    const submitBtn = document.getElementById("submitBtn");
     const resultCard = document.getElementById("resultCard");
     const tableNumberEl = document.getElementById("tableNumber");
     const resultLedeEl = document.getElementById("resultLede");
-    const guestListEl = document.getElementById("guestList");
+    const seatCountEl = document.getElementById("seatCount");
+    const lookupAnotherBtn = document.getElementById("lookupAnotherBtn");
+    let submitting = false;
 
     function setStatus(message, kind) {
-      statusEl.classList.remove("error", "success");
+      statusEl.classList.remove("error", "success", "loading");
       if (kind) statusEl.classList.add(kind);
       statusEl.textContent = message || "";
     }
@@ -112,17 +132,50 @@
         .replaceAll("'", "&#39;");
     }
 
-    function renderParty(out) {
-      guestListEl.innerHTML = "";
+    function setSubmitting(isSubmitting) {
+      submitBtn.disabled = isSubmitting;
+      submitBtn.textContent = isSubmitting ? "Finding table..." : "Show my table";
+      nameInput.disabled = isSubmitting;
+      const teamInputs = form.querySelectorAll("input[name=\"team\"]");
+      for (const input of teamInputs) input.disabled = isSubmitting;
+    }
 
-      const li = document.createElement("li");
-      li.textContent = `Number of seats: ${out && out.seats ? out.seats : "TBD"}`;
-      guestListEl.appendChild(li);
+    function setResultMode(enabled) {
+      document.body.classList.toggle("seating-result-mode", Boolean(enabled));
+      setHidden(introCard, Boolean(enabled));
+      setHidden(seatingCard, Boolean(enabled));
+      setHidden(resultCard, !enabled);
+      if (!enabled) {
+        setStatus("");
+      }
+    }
+
+    function normalizeTeamValue(raw) {
+      const team = String(raw || "").trim().toUpperCase();
+      if (team === "TEAM_BRIDE") return "BRIDE";
+      if (team === "TEAM_GROOM") return "GROOM";
+      if (team === "BRIDE" || team === "GROOM") return team;
+      return "";
+    }
+
+    function preselectTeamFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const team = normalizeTeamValue(params.get("team") || params.get("side"));
+      if (!team) return;
+      const input = form.querySelector(`input[name="team"][value="${team}"]`);
+      if (input) input.checked = true;
+    }
+
+    function renderSeatCount(out) {
+      const seatsRaw = out && typeof out.seats !== "undefined" ? Number(out.seats) : NaN;
+      const seats = Number.isFinite(seatsRaw) && seatsRaw > 0 ? seatsRaw : 0;
+      seatCountEl.textContent = `Number of seats: ${seats || "TBD"}`;
     }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      setHidden(resultCard, true);
+      if (submitting) return;
+      setResultMode(false);
       setStatus("");
 
       if (!SEATING_API_URL) {
@@ -132,6 +185,7 @@
 
       const data = Object.fromEntries(new FormData(form).entries());
       const name = String(data.name || "").trim();
+      nameInput.value = name;
       const team = String(data.team || "").trim();
 
       if (!name) {
@@ -143,7 +197,9 @@
         return;
       }
 
-      setStatus("Looking up your table (this can take a few seconds)...");
+      submitting = true;
+      setSubmitting(true);
+      setStatus("Finding your table (this can take a few seconds)...", "loading");
 
       const url = new URL(SEATING_API_URL);
       url.searchParams.set("action", "seating");
@@ -181,16 +237,27 @@
           return;
         }
 
-        tableNumberEl.textContent = normalizedTable || "Table TBD";
-        resultLedeEl.innerHTML = `Please proceed to <strong>${escapeHtml(normalizedTable || "your table")}</strong> with your guests.`;
-        renderParty(out);
+        const tableDisplay = normalizedTable || "Table TBD";
+        tableNumberEl.textContent = tableDisplay.replace(/^table\s*/i, "") || "TBD";
+        resultLedeEl.innerHTML = `Please proceed to <strong>${escapeHtml(tableDisplay)}</strong> with your guests.`;
+        renderSeatCount(out);
 
-        setHidden(resultCard, false);
-        setStatus("Found it!", "success");
+        setResultMode(true);
+        setStatus("Table found.", "success");
       } catch (err) {
         setStatus("Something went wrong. Please try again in a moment.", "error");
+      } finally {
+        submitting = false;
+        setSubmitting(false);
       }
     });
+
+    lookupAnotherBtn.addEventListener("click", () => {
+      setResultMode(false);
+      nameInput.focus();
+    });
+
+    preselectTeamFromQuery();
   </script>
 </body>
 </html>
