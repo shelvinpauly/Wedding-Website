@@ -187,21 +187,38 @@
 .table-visual {
   position: relative;
   margin: 10px auto 0;
-  width: min(74vw, 320px);
-  aspect-ratio: 1;
+  width: clamp(220px, 74vw, 320px);
+  height: clamp(220px, 74vw, 320px);
 }
 
-.table-center {
+.table-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.seat-shape {
+  fill: rgba(255, 255, 255, 0.97);
+  stroke: rgba(176, 122, 141, 0.46);
+  stroke-width: 1.4;
+}
+
+.table-disk {
+  fill: url(#tableFill);
+  stroke: rgba(143, 174, 155, 0.48);
+  stroke-width: 3;
+}
+
+.table-center-overlay {
   position: absolute;
-  inset: 18%;
+  inset: 22%;
   border-radius: 999px;
-  display: grid;
-  place-items: center;
-  border: 2px solid rgba(143, 174, 155, 0.48);
-  background:
-    radial-gradient(circle at 28% 30%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.75) 58%, rgba(143, 174, 155, 0.14)),
-    linear-gradient(145deg, rgba(143, 174, 155, 0.20), rgba(176, 122, 141, 0.12));
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
 }
 
 .table-center-label {
@@ -215,68 +232,10 @@
 .table-number {
   margin: 0;
   color: var(--sage-dark);
-  font-size: clamp(1.55rem, 3.2vw, 2.4rem);
+  font-size: clamp(1.75rem, 4vw, 2.6rem);
   font-weight: 800;
   line-height: 1.15;
   text-wrap: balance;
-}
-
-.table-chair {
-  position: absolute;
-  width: 54px;
-  height: 22px;
-  border-radius: 999px;
-  border: 1px solid rgba(176, 122, 141, 0.46);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(176, 122, 141, 0.10));
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-}
-
-.table-chair--1 {
-  top: 2%;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.table-chair--2 {
-  top: 15%;
-  right: 4%;
-  transform: rotate(50deg);
-}
-
-.table-chair--3 {
-  top: 50%;
-  right: -2%;
-  transform: translateY(-50%) rotate(90deg);
-}
-
-.table-chair--4 {
-  bottom: 15%;
-  right: 4%;
-  transform: rotate(130deg);
-}
-
-.table-chair--5 {
-  bottom: 2%;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.table-chair--6 {
-  bottom: 15%;
-  left: 4%;
-  transform: rotate(-130deg);
-}
-
-.table-chair--7 {
-  top: 50%;
-  left: -2%;
-  transform: translateY(-50%) rotate(-90deg);
-}
-
-.table-chair--8 {
-  top: 15%;
-  left: 4%;
-  transform: rotate(-50deg);
 }
 
 .result-details {
@@ -331,11 +290,7 @@
   }
 
   .table-visual {
-    width: min(86vw, 320px);
-  }
-
-  .table-chair {
-    width: 48px;
-    height: 20px;
+    width: clamp(220px, 86vw, 320px);
+    height: clamp(220px, 86vw, 320px);
   }
 }

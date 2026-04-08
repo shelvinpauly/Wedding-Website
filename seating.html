@@ -69,15 +69,25 @@
     <section id="resultCard" class="card seating-result hidden" aria-live="polite">
       <h2>Your Table</h2>
       <div class="table-visual" aria-hidden="true">
-        <span class="table-chair table-chair--1"></span>
-        <span class="table-chair table-chair--2"></span>
-        <span class="table-chair table-chair--3"></span>
-        <span class="table-chair table-chair--4"></span>
-        <span class="table-chair table-chair--5"></span>
-        <span class="table-chair table-chair--6"></span>
-        <span class="table-chair table-chair--7"></span>
-        <span class="table-chair table-chair--8"></span>
-        <div class="table-center">
+        <svg class="table-svg" viewBox="0 0 320 320" role="presentation">
+          <defs>
+            <radialGradient id="tableFill" cx="32%" cy="30%" r="75%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.98"></stop>
+              <stop offset="62%" stop-color="#ffffff" stop-opacity="0.78"></stop>
+              <stop offset="100%" stop-color="#8fae9b" stop-opacity="0.20"></stop>
+            </radialGradient>
+          </defs>
+          <rect x="132" y="8" width="56" height="22" rx="11" class="seat-shape"></rect>
+          <rect x="240" y="42" width="56" height="22" rx="11" transform="rotate(45 268 53)" class="seat-shape"></rect>
+          <rect x="264" y="132" width="56" height="22" rx="11" transform="rotate(90 292 143)" class="seat-shape"></rect>
+          <rect x="240" y="242" width="56" height="22" rx="11" transform="rotate(135 268 253)" class="seat-shape"></rect>
+          <rect x="132" y="290" width="56" height="22" rx="11" class="seat-shape"></rect>
+          <rect x="24" y="242" width="56" height="22" rx="11" transform="rotate(-135 52 253)" class="seat-shape"></rect>
+          <rect x="0" y="132" width="56" height="22" rx="11" transform="rotate(-90 28 143)" class="seat-shape"></rect>
+          <rect x="24" y="42" width="56" height="22" rx="11" transform="rotate(-45 52 53)" class="seat-shape"></rect>
+          <circle cx="160" cy="160" r="96" class="table-disk"></circle>
+        </svg>
+        <div class="table-center-overlay">
           <span class="table-center-label">Table</span>
           <p class="table-number" id="tableNumber"></p>
         </div>
