@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RSVP | Shelvin & Nancy</title>
+  <title>Guest Info | Shelvin & Nancy</title>
   <link rel="icon" href="favicon-v2.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32-v2.png" />
   <!-- Google tag (gtag.js) -->
@@ -20,11 +20,12 @@
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages/guest-info.css" />
 </head>
 <body>
 
 <header>
-  <h1>RSVP</h1>
+  <h1>Guest Info</h1>
 </header>
 
 <nav>
@@ -32,583 +33,61 @@
   <a href="schedule.html">Schedule</a>
   <a href="wedding-party.html">Wedding Party</a>
   <a href="registry.html">Registry</a>
-  <a href="rsvp.html" aria-current="page">RSVP</a>
+  <a href="rsvp.html" aria-current="page">Guest Info</a>
   <a href="faqs.html">FAQs</a>
 </nav>
 
 <main>
-
-  <p class="deadline">
-    <strong>Please RSVP by your invitation deadline.</strong>
-    It helps us plan for the celebration.
-  </p>
-
-  <p class="rsvp-note">
-    Need to update your RSVP later? Submit the form again with the same name within your RSVP window.
-  </p>
+  <div class="card">
+    <h2>RSVP</h2>
+    <p class="status error">
+      RSVPs are now closed. If you need help with a last-minute update, please email us at
+      <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.
+    </p>
+    <p class="soft-note">
+      Thank you for celebrating with us — we can’t wait to see you soon.
+    </p>
+  </div>
 
   <div class="card">
-    <p id="closedNotice" class="status error hidden"></p>
-    <form id="rsvpForm">
-      <label>
-        Name (exactly as on invite) *
-        <input id="nameInput" name="name" type="text" required />
-      </label>
+    <h2>Livestream</h2>
+    <p>
+      Can’t make it in person? Join us online using the link below.
+    </p>
+    <!--
+      To re-enable the embedded player:
+      1) In YouTube Studio, turn on "Allow embedding" for the livestream/video.
+      2) Uncomment the <div class="video-embed"> block below.
+      3) Remove the "Watch on YouTube" button.
 
-      <label>
-        Will you be attending? *
-        <select id="attendingSelect" name="attending" required>
-          <option value="">Select...</option>
-          <option value="yes">Yes, I will be there</option>
-          <option value="no">No, I can't make it</option>
-        </select>
-      </label>
-
-      <!-- Shown only if attending = YES -->
-      <div id="attendingFields" class="hidden">
-        <label>
-          Email *
-          <input id="emailInput" name="email" type="email" />
-        </label>
-
-        <label>
-          Adults (including you)
-          <select id="adultsSelect" name="adults"></select>
-        </label>
-
-        <label>
-          Children (ages 5-15)
-          <select id="kids515Select" name="kids515"></select>
-        </label>
-
-        <label>
-          Children (under 5)
-          <select id="kidsUnder5Select" name="kidsUnder5"></select>
-        </label>
-
-        <label>
-          Message (optional)
-          <textarea name="message" rows="4" placeholder="Leave us a note..."></textarea>
-        </label>
-      </div>
-
-      <!-- Shown only if attending = NO -->
-      <div id="declineMessage" class="hidden">
-        <p class="soft-note">
-          We'll miss you! You can still update your RSVP within your RSVP window.
-        </p>
-      </div>
-
-      <div id="submitWrap" class="hidden">
-        <button id="submitBtn" class="btn" type="submit">Submit RSVP</button>
-      </div>
-
-      <p id="status" class="status"></p>
-      <p id="subStatus" class="substatus"></p>
-
-    </form>
+      Note: If embedding is disabled, the player can show "Error 153".
+    -->
+    <!--
+    <div class="video-embed" aria-label="Livestream video player">
+      <iframe
+        src="https://www.youtube.com/embed/kEX55fNNBQM?rel=0"
+        title="Wedding Livestream"
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+    -->
+    <div class="rsvp-actions">
+      <a
+        class="btn"
+        href="https://www.youtube.com/live/kEX55fNNBQM"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-analytics-event="cta_click"
+        data-analytics-cta-label="livestream">
+        Watch on YouTube
+      </a>
+    </div>
   </div>
 </main>
 
 <script src="js/main.js" defer></script>
-
-<script>
-  const RSVP_API_URL = "https://script.google.com/macros/s/AKfycbx0Mgi-QS6rvXA1po9-GBtMoyn0eN9h4TYPZvoD2cqsrefNUwnan2wDOaAD4zHNaAJK/exec";
-  const COOLDOWN_SECONDS = 30;
-
-  const form = document.getElementById("rsvpForm");
-  const nameInput = document.getElementById("nameInput");
-  const attendingSelect = document.getElementById("attendingSelect");
-  const attendingFields = document.getElementById("attendingFields");
-  const declineMessage = document.getElementById("declineMessage");
-
-  const emailInput = document.getElementById("emailInput");
-  const adultsSelect = document.getElementById("adultsSelect");
-  const kids515Select = document.getElementById("kids515Select");
-  const kidsUnder5Select = document.getElementById("kidsUnder5Select");
-
-  const statusEl = document.getElementById("status");
-  const subStatusEl = document.getElementById("subStatus");
-  const closedNotice = document.getElementById("closedNotice");
-
-  const submitWrap = document.getElementById("submitWrap");
-  const submitBtn = document.getElementById("submitBtn");
-
-  let redirectTimer = null;
-  let redirectInProgress = false;
-  let submitting = false;
-
-  function emitRsvpEvent(name, detail) {
-    if (typeof window.CustomEvent !== "function") return;
-    window.dispatchEvent(new CustomEvent(name, { detail }));
-  }
-
-  function startRedirectCountdown(seconds, destination) {
-    if (redirectTimer) clearInterval(redirectTimer);
-
-    redirectInProgress = true;
-
-    let remaining = seconds;
-
-    const label =
-      destination === "schedule.html"
-        ? "the schedule"
-        : "the home page";
-
-    subStatusEl.textContent = `You'll be redirected to ${label} in ${remaining}s...`;
-
-    redirectTimer = setInterval(() => {
-      remaining--;
-      if (remaining <= 0) {
-        clearInterval(redirectTimer);
-        window.location.href = destination;
-      } else {
-        subStatusEl.textContent = `You'll be redirected to ${label} in ${remaining}s...`;
-      }
-    }, 1000);
-  }
-
-
-  function setHidden(el, hidden) {
-    el.classList.toggle("hidden", hidden);
-  }
-
-  function setNotice(message) {
-    closedNotice.textContent = message;
-    setHidden(closedNotice, !message);
-  }
-
-  function buildNotOpenMessage(windowText) {
-    const suffix = windowText ? ` Your RSVP window is ${windowText}.` : "";
-    return `RSVP is not open yet for your invitation.${suffix}`;
-  }
-
-  function buildClosedMessage(windowText) {
-    const suffix = windowText ? ` Your RSVP window was ${windowText}.` : "";
-    return `RSVP is closed for your invitation.${suffix}`;
-  }
-
-  function getWindowEndText(windowText) {
-    if (!windowText) return "";
-    const parts = windowText.split(/\s+-\s+/);
-    return (parts.length > 1 ? parts[parts.length - 1] : windowText).trim();
-  }
-
-  function escapeHtml(value) {
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/\"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
-
-  function setSubmitVisible(visible) {
-    setHidden(submitWrap, !visible);
-  }
-
-  function setSubmitEnabled(enabled) {
-    submitBtn.disabled = !enabled;
-    submitBtn.style.opacity = enabled ? "1" : "0.6";
-    submitBtn.style.cursor = enabled ? "pointer" : "not-allowed";
-  }
-
-  function focusStatusMessage() {
-    const messageText = statusEl.textContent.trim();
-    if (!messageText && !statusEl.innerHTML.trim()) return;
-
-    if (!statusEl.hasAttribute("tabindex")) {
-      statusEl.setAttribute("tabindex", "-1");
-    }
-
-    requestAnimationFrame(() => {
-      statusEl.scrollIntoView({ behavior: "smooth", block: "start" });
-      statusEl.focus({ preventScroll: true });
-    });
-  }
-
-  function fillSelect(selectEl, min, max, defaultValue) {
-    selectEl.innerHTML = "";
-    for (let i = min; i <= max; i++) {
-      const opt = document.createElement("option");
-      opt.value = String(i);
-      opt.textContent = String(i);
-      if (i === defaultValue) opt.selected = true;
-      selectEl.appendChild(opt);
-    }
-  }
-
-  // ---- Guest lookup state ----
-  let guestLookup = {
-    status: "idle", // idle | checking | valid | invalid | not_open | closed
-    caps: null
-  };
-
-  let lookupTimer = null;
-  let lookupRequestId = 0;
-
-  async function lookupCapsByName(name) {
-    const url = new URL(RSVP_API_URL);
-    url.searchParams.set("action", "lookup");
-    url.searchParams.set("name", name);
-
-    const res = await fetch(url.toString());
-    let out;
-    try { out = await res.json(); } catch (e) { out = null; }
-
-    if (!out) {
-      throw new Error("Lookup failed. Please try again.");
-    }
-    return out; // { ok, code, error, status, windowText, maxAdults, maxKids515, maxKidsUnder5 }
-  }
-
-  function resetUiToSafeState() {
-    // Never show extra fields or submit until we know guest is valid + choice made
-    setHidden(attendingFields, true);
-    setHidden(declineMessage, true);
-    setSubmitVisible(false);
-    emailInput.required = false;
-    subStatusEl.textContent = "";
-    setNotice("");
-  }
-
-  function applyUiRules() {
-    const name = nameInput.value.trim();
-    const attending = attendingSelect.value;
-
-    setNotice("");
-
-    // Base safe state
-    setHidden(attendingFields, true);
-    setHidden(declineMessage, true);
-    setSubmitVisible(false);
-
-    // If no name, nothing else should show
-    if (!name) {
-      statusEl.textContent = "";
-      return;
-    }
-
-    // If checking, show only "checking..."
-    if (guestLookup.status === "checking") {
-      statusEl.textContent = "Checking your invitation details...";
-      return;
-    }
-
-    // If invalid guest, show only error, nothing else
-    if (guestLookup.status === "invalid") {
-      // statusEl already set during lookup
-      return;
-    }
-
-    if (guestLookup.status === "not_open" || guestLookup.status === "closed") {
-      setNotice(guestLookup.message || "");
-      statusEl.textContent = "";
-      return;
-    }
-
-    // If valid guest but no attending choice yet
-    if (guestLookup.status === "valid" && !attending) {
-      statusEl.textContent = "";
-      return;
-    }
-
-    // Valid guest + attending choice logic
-    if (guestLookup.status === "valid" && attending === "no") {
-      // Do not show extra fields; allow submit
-      emailInput.required = false;
-      setSubmitVisible(true);
-      statusEl.textContent = ""; // no pre-message; only after submit
-      return;
-    }
-
-    if (guestLookup.status === "valid" && attending === "yes") {
-      // Show extra fields + allow submit
-      setHidden(attendingFields, false);
-      emailInput.required = true;
-      setSubmitVisible(true);
-      statusEl.textContent = "";
-      return;
-    }
-  }
-
-  function scheduleLookup() {
-    const name = nameInput.value.trim();
-
-    // Reset UI on every new keystroke before lookup finishes
-    guestLookup = { status: name ? "checking" : "idle", caps: null };
-    resetUiToSafeState();
-    applyUiRules();
-
-    // Debounce
-    if (lookupTimer) clearTimeout(lookupTimer);
-
-    if (!name) return;
-
-    const currentId = ++lookupRequestId;
-    lookupTimer = setTimeout(async () => {
-      try {
-        const response = await lookupCapsByName(name);
-
-        // Ignore out-of-order responses
-        if (currentId !== lookupRequestId) return;
-
-        if (!response.ok) {
-          guestLookup = { status: "invalid", caps: null };
-
-          let lookupResult = "invalid";
-          let lookupReason = "";
-
-          if (response.code === "NOT_FOUND") {
-            statusEl.innerHTML =
-              `We couldn't find that name on the guest list.<br>
-              Please double-check the name you typed and make sure it matches the name on your invitation.<br>
-              If it looks correct and you still can't submit, please reach out to us.
-              Sorry for any confusion!`;
-            lookupReason = "not_found";
-          } else if (response.code === "AMBIGUOUS_NAME") {
-            statusEl.textContent = response.error || "Please enter your full name as shown on your invitation.";
-            lookupReason = "ambiguous";
-          } else {
-            statusEl.innerHTML =
-              `We're having trouble checking the guest list right now.<br>
-              Please refresh and try again. If it continues, email us at
-              <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.`;
-            lookupResult = "error";
-            lookupReason = "lookup_failed";
-          }
-
-          emitRsvpEvent("rsvp:lookup", { result: lookupResult, reason: lookupReason });
-
-          resetUiToSafeState();
-          applyUiRules();
-          return;
-        }
-
-        if (response.status === "not_open") {
-          guestLookup = { status: "not_open", caps: null, message: buildNotOpenMessage(response.windowText) };
-          emitRsvpEvent("rsvp:lookup", { result: "not_open" });
-          resetUiToSafeState();
-          applyUiRules();
-          return;
-        }
-
-        if (response.status === "closed") {
-          guestLookup = { status: "closed", caps: null, message: buildClosedMessage(response.windowText) };
-          emitRsvpEvent("rsvp:lookup", { result: "closed" });
-          resetUiToSafeState();
-          applyUiRules();
-          return;
-        }
-
-        const caps = response;
-
-        // Set caps and mark valid
-        guestLookup = { status: "valid", caps };
-
-        // Fill dropdowns only now (prevents flicker)
-        if (caps.maxAdults < 1) {
-          guestLookup.status = "invalid";
-          statusEl.textContent = "This invitation isn't configured correctly. Please email us at shelvinancy@gmail.com.";
-          emitRsvpEvent("rsvp:lookup", { result: "error", reason: "invalid_config" });
-          resetUiToSafeState();
-          return;
-        }
-
-        fillSelect(adultsSelect, 1, caps.maxAdults, 1);
-        fillSelect(kids515Select, 0, caps.maxKids515, 0);
-        fillSelect(kidsUnder5Select, 0, caps.maxKidsUnder5, 0);
-
-        statusEl.textContent = "";
-        applyUiRules();
-        emitRsvpEvent("rsvp:lookup", { result: "valid" });
-
-      } catch (err) {
-        guestLookup = { status: "invalid", caps: null };
-
-        statusEl.innerHTML =
-          `We're having trouble checking the guest list right now.<br>
-          Please refresh and try again. If it continues, email us at
-          <a href="mailto:shelvinancy@gmail.com">shelvinancy@gmail.com</a>.`;
-
-        emitRsvpEvent("rsvp:lookup", { result: "error", reason: "lookup_failed" });
-
-        resetUiToSafeState();
-      }
-    }, 350); // debounce delay
-  }
-
-  function startCooldown(seconds) {
-    const until = Date.now() + seconds * 1000;
-    localStorage.setItem("rsvpCooldownUntil", String(until));
-
-    // Make sure cooldown UI applies immediately (unless redirect takes over)
-    tickCooldown();
-  }
-
-
-  function tickCooldown() {
-    // If redirect is active, do not overwrite the redirect message
-    if (redirectInProgress) return;
-
-    const untilRaw = localStorage.getItem("rsvpCooldownUntil");
-    const until = untilRaw ? Number(untilRaw) : 0;
-    const now = Date.now();
-
-    if (!until || now >= until) {
-      localStorage.removeItem("rsvpCooldownUntil");
-      setSubmitEnabled(true);
-      subStatusEl.textContent = "";
-      return;
-    }
-
-    const remaining = Math.ceil((until - now) / 1000);
-    setSubmitEnabled(false);
-    subStatusEl.textContent = `Please wait ${remaining}s before submitting again.`;
-    setTimeout(tickCooldown, 500);
-  }
-
-
-  // Init
-  resetUiToSafeState();
-  tickCooldown();
-
-  // Events
-  nameInput.addEventListener("input", scheduleLookup);
-
-  attendingSelect.addEventListener("change", () => {
-    // Do not show anything new unless guest is valid
-    applyUiRules();
-  });
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    if (submitting) return;
-
-    // Final gate: only submit if allowed
-    if (guestLookup.status !== "valid") return;
-    if (!attendingSelect.value) return;
-
-    // Respect cooldown
-    const untilRaw = localStorage.getItem("rsvpCooldownUntil");
-    if (untilRaw && Date.now() < Number(untilRaw)) return;
-
-    submitting = true;
-    setSubmitEnabled(false);
-
-    statusEl.textContent = "Submitting...";
-
-    const data = Object.fromEntries(new FormData(form).entries());
-    const attendingValue = (data.attending || "").toLowerCase() === "yes" ? "yes" : "no";
-    emitRsvpEvent("rsvp:submit", { attending: attendingValue });
-
-    try {
-      const res = await fetch(RSVP_API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(data),
-      });
-
-      let out;
-      try { out = await res.json(); } catch (e) { out = null; }
-
-      if (!out || out.ok !== true) {
-        submitting = false;
-        const httpStatus = res && typeof res.status === "number" ? res.status : undefined;
-        const apiCode = out && out.code ? out.code : undefined;
-
-        if (out && out.code === "RSVP_CLOSED") {
-          guestLookup = { status: "closed", caps: null, message: out.error || buildClosedMessage(out.windowText || "") };
-          resetUiToSafeState();
-          applyUiRules();
-          emitRsvpEvent("rsvp:submit_error", { reason: "closed", api_code: apiCode, http_status: httpStatus });
-          return;
-        }
-
-        if (out && out.code === "RSVP_NOT_OPEN") {
-          guestLookup = { status: "not_open", caps: null, message: out.error || buildNotOpenMessage(out.windowText || "") };
-          resetUiToSafeState();
-          applyUiRules();
-          emitRsvpEvent("rsvp:submit_error", { reason: "not_open", api_code: apiCode, http_status: httpStatus });
-          return;
-        }
-
-        statusEl.textContent = (out && out.error) ? out.error : "Something went wrong. Please try again.";
-        setSubmitEnabled(true);
-        focusStatusMessage();
-        emitRsvpEvent("rsvp:submit_error", { reason: "api_error", api_code: apiCode, http_status: httpStatus });
-        return;
-      }
-
-      const summaryLines = (out && Array.isArray(out.summary)) ? out.summary : null;
-      const windowText = (out && out.windowText) ? out.windowText : "";
-
-      const fallbackSummary = [
-        windowText ? `RSVP window: ${windowText}` : null,
-        `Attending: ${(data.attending || "").toLowerCase() === "yes" ? "Yes" : "No"}`,
-        (data.attending || "").toLowerCase() === "yes" ? `Adults: ${data.adults || 0}` : null,
-        (data.attending || "").toLowerCase() === "yes" ? `Children (5-15): ${data.kids515 || 0}` : null,
-        (data.attending || "").toLowerCase() === "yes" ? `Children (under 5): ${data.kidsUnder5 || 0}` : null,
-        data.email ? `Email: ${data.email}` : null,
-        data.message ? `Message: ${data.message}` : null
-      ].filter(Boolean);
-
-      const lines = summaryLines && summaryLines.length ? summaryLines : fallbackSummary;
-      const summaryHtml = lines.length
-        ? `<div class="rsvp-summary"><p>Your RSVP summary:</p><ul>${lines.map(line => `<li>${escapeHtml(line)}</li>`).join("")}</ul></div>`
-        : "";
-
-      // Success messages
-      if ((data.attending || "").toLowerCase() === "no") {
-        const endDateText = getWindowEndText(windowText);
-        const updateMessage = endDateText
-          ? `You can still update your RSVP by ${endDateText}, if anything changes.`
-          : "You can still update your RSVP before your RSVP window closes, if anything changes.";
-
-        statusEl.innerHTML =
-          `Thanks for letting us know - we'll miss you.<br>` +
-          `${updateMessage}`;
-
-        // Keep form mostly as-is; but hide extra fields anyway
-        setHidden(attendingFields, true);
-        setHidden(declineMessage, true);
-
-      } else {
-        statusEl.innerHTML =
-          `Thank you! Your RSVP has been received.<br>` +
-          `Please check your email for confirmation. We can't wait to celebrate with you!` +
-          summaryHtml;
-      }
-
-      focusStatusMessage();
-      emitRsvpEvent("rsvp:success", {
-        attending: attendingValue,
-        adults: data.adults || "0",
-        kids_5_15: data.kids515 || "0",
-        kids_under_5: data.kidsUnder5 || "0"
-      });
-
-      submitting = false;
-      startCooldown(COOLDOWN_SECONDS);
-
-      if ((data.attending || "").toLowerCase() === "yes") {
-        startRedirectCountdown(COOLDOWN_SECONDS, "schedule.html");
-      } else {
-        startRedirectCountdown(COOLDOWN_SECONDS, "index.html");
-      }
-
-
-    } catch (err) {
-      submitting = false;
-      statusEl.textContent = "Network error. Please try again in a moment.";
-      setSubmitEnabled(true);
-      focusStatusMessage();
-      emitRsvpEvent("rsvp:submit_error", { reason: "network", http_status: 0 });
-      console.error(err);
-    }
-  });
-</script>
 
 </body>
 </html>

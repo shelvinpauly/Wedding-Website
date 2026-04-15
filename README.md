@@ -11,19 +11,16 @@ This static website is the central hub for wedding information, including the sc
 - Cocktail Hour: 12:00 PM - 1:00 PM
 - Reception: 1:00 PM - 5:00 PM (please be seated by 12:45 PM)
 - Location: Somerset, NJ
-- RSVP Deadline: January 15, 2026
+- RSVP: Closed
 
 ## Architecture
 - Frontend: Static HTML pages in the repo root, styled with modular CSS in `css/` and behavior in `js/main.js`.
-- RSVP backend: Google Apps Script (`code.gs`) deployed as a web app.
+- RSVP backend: Google Apps Script (`code.gs`) deployed as a web app (RSVP form is currently disabled on the site).
 - Data: Guest lists live in two Google Sheets (bride/groom) with round tabs; RSVP responses are stored in the bound spreadsheet tabs.
 - Email: Apps Script `MailApp` sends confirmation emails for attending guests.
 
 ## RSVP Flow
-1. Guest enters their name on `rsvp.html`; the frontend calls the lookup endpoint to fetch guest caps.
-2. Form submission posts to Apps Script; the server validates caps, deadline, and invite round.
-3. The response is upserted into the appropriate response tab; a confirmation email is sent for "Yes" RSVPs.
-4. The frontend applies a cooldown and handles RSVP-closed messaging.
+RSVP is handled by Apps Script (`code.gs`), but the public site no longer accepts new RSVP submissions.
 
 ## Project Structure
 ```
@@ -31,7 +28,7 @@ index.html                 # Homepage
 schedule.html              # Ceremony and reception details
 wedding-party.html         # Wedding party details
 registry.html              # Registry links
-rsvp.html                  # RSVP form and client-side logic
+rsvp.html                  # Guest info (RSVP closed) + livestream link
 faqs.html                  # Frequently asked questions
 css/
   base.css                 # Root tokens + base element styles
@@ -52,11 +49,15 @@ README.md                  # This file
 ```
 
 ## Configuration Quick Reference
-- `rsvp.html`: `RSVP_API_URL`, RSVP deadline text, and client-side copy.
+- `rsvp.html`: guest info copy + livestream link.
 - `code.gs`: `RSVP_WINDOWS`, `ROUND_TABS`, and guest list spreadsheet IDs.
 - `js/main.js`: countdown date/time.
 - `schedule.html` and `assets/shelvin-nancy-wedding.ics`: schedule times and calendar details.
 - `css/base.css`, `css/layout.css`, `css/components.css`, `css/pages/*.css`: modular styling by layer and page.
+
+## Livestream
+- Link: `https://www.youtube.com/live/kEX55fNNBQM`
+- Embed: If you want an embedded player on `rsvp.html`, YouTube must have "Allow embedding" enabled for the livestream/video. The embed markup is kept commented in `rsvp.html`.
 
 ## Project Documentation
 - `docs/rsvp-windowing.md`: per-side RSVP windows, name matching rules, and error codes.
@@ -77,7 +78,7 @@ README.md                  # This file
 - Apps Script:
   1. Open the Apps Script project that contains `code.gs`.
   2. Update code and deploy a new web app version.
-  3. If the web app URL changes, update `RSVP_API_URL` in `rsvp.html`.
+  3. (Optional) If re-enabling online RSVPs, wire the web app URL into the RSVP frontend.
 - Google Sheets: update the guest list spreadsheets for the active invite round.
 
 ## Backlog / TODO
